@@ -16,7 +16,6 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val res: StringResourcesProvider,
-
     ) : AuthRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
