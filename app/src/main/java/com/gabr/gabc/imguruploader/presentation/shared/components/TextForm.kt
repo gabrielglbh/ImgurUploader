@@ -47,7 +47,7 @@ fun TextForm(
     OutlinedTextField(
         value = value,
         singleLine = singleLine,
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier,
         onValueChange = onValueChange,
         label = { Text(stringResource(labelId)) },
         isError = isError,
