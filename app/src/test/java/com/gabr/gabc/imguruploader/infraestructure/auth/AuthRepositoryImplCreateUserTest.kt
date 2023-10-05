@@ -6,6 +6,9 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -23,19 +26,21 @@ class AuthRepositoryImplCreateUserTest {
     private val email = "email"
     private val password = "password"
 
+    // TODO: Trying using mockK instead of mockito... WIP
     @Test
     fun createUser_Successful() = runTest {
-        val mockAuthResult = mock<AuthResult> {
-            on { user } doReturn mockUser
+        val mockAuthResult = mockk<AuthResult> {
+            every { user } returns mockUser
         }
-        val mockTask = mock<Task<AuthResult>> {
-            on { isComplete } doReturn true
-            on { isSuccessful } doReturn true
+        val mockTask = mockk<Task<AuthResult>> {
+            coEvery { await() } coAnswers { mockAuthResult }
+            every { isComplete } returns true
+            every { isSuccessful } returns true
         }
-        val mockAuth = mock<FirebaseAuth> {
-            on { createUserWithEmailAndPassword(email, password) } doAnswer { mockTask }
-            onBlocking { mockTask.await() } doAnswer { mockAuthResult }
+        val mockAuth = mockk<FirebaseAuth> {
+            every { createUserWithEmailAndPassword(email, password) } returns mockTask
         }
+
         val repositoryImpl = AuthRepositoryImpl(mockAuth, mockStringProvider)
         val user = repositoryImpl.createUser(email, password)
         Assert.assertEquals(user.isRight(), true)
