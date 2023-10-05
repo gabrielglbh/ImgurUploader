@@ -3,4 +3,11 @@
     <string name="error_sign_in">El inicio de sesión ha fallado, inténtalo de nuevo</string>
     <string name="error_register">El registro ha fallado, inténtalo de nuevo</string>
     <string name="error_empty_form">Completa el formulario correctamente</string>
+
+    <string name="login_email">Email</string>
+    <string name="login_password">Contraseña</string>
+    <string name="login_button">Iniciar sesión</string>
+    <string name="register_button">Registrar</string>
+    <string name="register_toggle_1">No tengo una cuenta</string>
+    <string name="register_toggle_2">Ya tengo cuenta</string>
 </resources>

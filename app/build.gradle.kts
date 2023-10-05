@@ -45,6 +45,10 @@ android {
     kotlinOptions {
         jvmTarget = "18"
     }
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+        unitTests.isIncludeAndroidResources = true
+    }
 }
 
 kapt {
@@ -62,6 +66,9 @@ dependencies {
     implementation("androidx.compose.ui:ui-tooling-preview")
     debugImplementation("androidx.compose.ui:ui-tooling")
     implementation("androidx.compose.material:material-icons-extended:1.5.2")
+    testImplementation("androidx.compose.ui:ui-test-junit4")
+    // Needed for createAndroidComposeRule
+    debugImplementation("androidx.compose.ui:ui-test-manifest")
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -76,13 +83,19 @@ dependencies {
     implementation("com.google.firebase:firebase-auth-ktx")
 
     // Dependency Injection
-    implementation("com.google.dagger:hilt-android:2.47")
-    kapt("com.google.dagger:hilt-android-compiler:2.47")
+    implementation("com.google.dagger:hilt-android:2.48")
+    kapt("com.google.dagger:hilt-android-compiler:2.48")
+    testImplementation("com.google.dagger:hilt-android-testing:2.48")
+    kaptTest("com.google.dagger:hilt-android-compiler:2.48")
+
+    // Robolectric
+    testImplementation("org.robolectric:robolectric:4.10.3")
 
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.2")
 
     // Coil for images
     implementation("io.coil-kt:coil-compose:2.3.0")
@@ -98,4 +111,5 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 }

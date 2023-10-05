@@ -16,7 +16,6 @@ import javax.inject.Inject
 class AuthRepositoryImpl @Inject constructor(
     private val auth: FirebaseAuth,
     private val res: StringResourcesProvider,
-
     ) : AuthRepository {
     override suspend fun getCurrentUser(): FirebaseUser? = auth.currentUser
 
@@ -29,7 +28,7 @@ class AuthRepositoryImpl @Inject constructor(
             auth.signInWithEmailAndPassword(email, password).await().user?.let {
                 return Right(it)
             }
-            return Left(AuthFailure.SignInFailed(signInFailed))
+            return Left(AuthFailure.UserDoesNotExist(signInFailed))
         } catch (err: FirebaseAuthException) {
             return Left(AuthFailure.SignInFailed(signInFailed))
         } catch (err: IllegalArgumentException) {
@@ -46,7 +45,7 @@ class AuthRepositoryImpl @Inject constructor(
             auth.createUserWithEmailAndPassword(email, password).await().user?.let {
                 return Right(it)
             }
-            return Left(AuthFailure.UserCreationFailed(signInFailed))
+            return Left(AuthFailure.UserDoesNotExist(signInFailed))
         } catch (err: FirebaseAuthException) {
             return Left(AuthFailure.UserCreationFailed(signInFailed))
         } catch (err: IllegalArgumentException) {
