@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.viewModels
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -47,6 +48,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.imguruploader.R
+import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.imguruploader.presentation.shared.PermissionsRequester
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -105,6 +107,8 @@ class HomePage: ComponentActivity() {
 
     @Composable
     fun ActionBar() {
+        val viewModel: HomeViewModel by viewModels()
+
         Box(
             modifier = Modifier
                 .height(64.dp)
@@ -125,7 +129,7 @@ class HomePage: ComponentActivity() {
             ) {
                 IconButton(
                     onClick = {
-                        // TODO: Sign out
+                        viewModel.signOut()
                     }
                 ) {
                     Icon(Icons.AutoMirrored.Outlined.ExitToApp, "")
