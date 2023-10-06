@@ -3,7 +3,6 @@ package com.gabr.gabc.imguruploader.presentation.homePage.viewModel
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.util.Base64
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -13,12 +12,13 @@ import com.gabr.gabc.imguruploader.domain.auth.AuthRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImgurImage
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.util.Calendar
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -49,18 +49,19 @@ class HomeViewModel @Inject constructor(
     }
 
     fun uploadImage(onError: (String) -> Unit) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch {
             isLoading.value = true
             val formValue = _formState.value
             val res = imageManagerRepository.uploadImage(
                 formValue.title,
                 formValue.description,
-                encodeImageToBase64()
+                imageToResizedTempFile()
             )
             res.fold(
                 ifLeft = { onError(it.error) },
                 ifRight = {
                     shouldShowDetails.value = false
+                    // TODO: getImages call
                 }
             )
             isLoading.value = false
@@ -73,20 +74,40 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun encodeImageToBase64(): String {
-        val imageStream = contentResolverProvider.resolver().openInputStream(_formState.value.link)
-        val selectedImage = BitmapFactory.decodeStream(imageStream)
+    private fun imageToResizedTempFile(): File {
+        val fileName = Calendar.getInstance().timeInMillis.toString()
+        val outputFile = File.createTempFile(fileName, ".jpeg", null)
+
+        _formState.value.link?.let {
+            contentResolverProvider.resolver().openInputStream(it)?.use { input ->
+                val outputStream = FileOutputStream(outputFile)
+                outputStream.use { output ->
+                    val buffer = ByteArray(4 * 1024)
+                    while (true) {
+                        val byteCount = input.read(buffer)
+                        if (byteCount < 0) break
+                        output.write(buffer, 0, byteCount)
+                    }
+                    output.flush()
+                    output.close()
+                }
+            }
+        }
+
+        val bitmap = BitmapFactory.decodeFile(outputFile.path)
 
         val width = 400
-        val aspectRatio = selectedImage.width.toFloat() / selectedImage.height.toFloat()
-        val resizeSelectedImage = Bitmap.createScaledBitmap(
-            selectedImage, width, (width / aspectRatio).roundToInt(), false
+        val aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
+        val resizedBitmap = Bitmap.createScaledBitmap(
+            bitmap, width, (width / aspectRatio).roundToInt(), false
         )
 
-        val stream = ByteArrayOutputStream()
-        resizeSelectedImage.compress(Bitmap.CompressFormat.JPEG, 100, stream)
-        val b = stream.toByteArray()
+        val resizedFile = File.createTempFile(fileName, ".jpeg", null)
+        val fOut = FileOutputStream(resizedFile)
+        resizedBitmap.compress(Bitmap.CompressFormat.JPEG, 90, fOut)
+        fOut.flush()
+        fOut.close()
 
-        return Base64.encodeToString(b, Base64.DEFAULT)
+        return resizedFile
     }
 }

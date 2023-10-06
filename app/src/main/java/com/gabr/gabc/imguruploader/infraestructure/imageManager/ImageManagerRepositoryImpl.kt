@@ -10,7 +10,11 @@ import com.gabr.gabc.imguruploader.domain.http.HttpRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImgurImage
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.HttpException
+import java.io.File
 import javax.inject.Inject
 
 class ImageManagerRepositoryImpl @Inject constructor(
@@ -31,18 +35,15 @@ class ImageManagerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadImage(title: String, description: String, link: String): Either<ImageManagerFailure, ImgurImage> {
+    override suspend fun uploadImage(title: String, description: String, file: File): Either<ImageManagerFailure, Unit> {
         return try {
             val service = http.getImageManagerService()
-            val result = service.uploadImage(ImgurUpdateImageDto(title, description, link))
+            val filePart = MultipartBody.Part.createFormData("image", file.name, file.asRequestBody())
+
+            val result = service.uploadImage(title.toRequestBody(), description.toRequestBody(), filePart)
+
             if (result.isSuccessful) {
-                val dto = result.body()!!
-                Right(ImgurImage(
-                    title = dto.title,
-                    description = dto.description,
-                    link = Uri.parse(dto.link),
-                    deleteHash = dto.deleteHash
-                ))
+                Right(Unit)
             } else {
                 Left(ImageManagerFailure.ImageUploadFailed(res.getString(R.string.error_imgur_upload)))
             }
