@@ -8,14 +8,9 @@ import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 
 class AuthRepositoryImplSignInUserTest {
     private val mockUser = mockk<FirebaseUser>()

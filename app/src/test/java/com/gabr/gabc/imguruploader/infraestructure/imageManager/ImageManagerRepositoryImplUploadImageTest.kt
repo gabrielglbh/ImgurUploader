@@ -1,6 +1,6 @@
 package com.gabr.gabc.imguruploader.infraestructure.imageManager
 
-import android.net.Uri
+/*import android.net.Uri
 import android.util.Base64
 import com.gabr.gabc.imguruploader.di.StringResourcesProvider
 import com.gabr.gabc.imguruploader.domain.http.HttpRepository
@@ -16,14 +16,14 @@ import org.junit.Assert
 import org.junit.Test
 import retrofit2.Call
 import retrofit2.await
-import java.io.File
+import java.io.File*/
 
 class ImageManagerRepositoryImplUploadImageTest {
-    private val mockStringProvider = mockk<StringResourcesProvider> {
+    /*private val mockStringProvider = mockk<StringResourcesProvider> {
         every { getString(any()) } returns ""
     }
 
-    /*@Test
+    @Test
     fun uploadImage_Successful() = runTest {
         // https://github.com/mockk/mockk/issues/344
         mockkStatic("retrofit2.KotlinExtensions")
