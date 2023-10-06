@@ -5,6 +5,7 @@ import arrow.core.Either
 import arrow.core.Either.Left
 import arrow.core.Either.Right
 import com.gabr.gabc.imguruploader.R
+import com.gabr.gabc.imguruploader.di.ContentResolverProvider
 import com.gabr.gabc.imguruploader.di.StringResourcesProvider
 import com.gabr.gabc.imguruploader.domain.http.HttpRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
@@ -13,12 +14,12 @@ import com.gabr.gabc.imguruploader.domain.imageManager.ImgurImage
 import com.gabr.gabc.imguruploader.domain.imageManager.toDto
 import retrofit2.HttpException
 import retrofit2.await
-import java.io.File
 import javax.inject.Inject
 
 class ImageManagerRepositoryImpl @Inject constructor(
     private val http: HttpRepository,
     private val res: StringResourcesProvider,
+    private val contentResolver: ContentResolverProvider,
 ) : ImageManagerRepository {
     override suspend fun getUserName(): Either<ImageManagerFailure, String> {
         return try {
@@ -34,10 +35,10 @@ class ImageManagerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadImage(image: ImgurImage, file: File): Either<ImageManagerFailure, Unit> {
+    override suspend fun uploadImage(image: ImgurImage): Either<ImageManagerFailure, Unit> {
         return try {
             val service = http.getImageManagerService()
-            val result = service.uploadImage(image.toDto(file)).await()
+            val result = service.uploadImage(image.toDto(contentResolver.resolver())).await()
             if (result.success) {
                 Right(Unit)
             } else {
@@ -73,7 +74,6 @@ class ImageManagerRepositoryImpl @Inject constructor(
                     imgurImages.add(ImgurImage(
                         title = json.get("title") as String? ?: "",
                         description = json.get("description") as String? ?: "",
-                        type = json.getString("type"),
                         deleteHash = json.getString("deletehash"),
                         link = Uri.parse(json.getString("link")),
                     ))

@@ -1,6 +1,5 @@
 package com.gabr.gabc.imguruploader.di
 
-import com.google.firebase.auth.FirebaseAuth
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

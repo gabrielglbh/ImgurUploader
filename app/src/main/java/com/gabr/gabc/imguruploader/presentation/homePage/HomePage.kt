@@ -35,11 +35,14 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,9 +51,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.gabr.gabc.imguruploader.R
+import com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.imguruploader.presentation.shared.PermissionsRequester
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage: ComponentActivity() {
@@ -63,16 +68,18 @@ class HomePage: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        val viewModel: HomeViewModel by viewModels()
         val photoUri = PermissionsRequester.getPhotoUri(this)
+
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
                 if (uri != null) {
-                    // TODO: Update list of images and added to imgur
+                    viewModel.updateShouldShowFormDialog(true, uri)
                 }
             }
         photoMedia = registerForActivityResult(ActivityResultContracts.TakePicture()) {
             if (it) {
-                // TODO: Update list of images and added to imgur
+                viewModel.updateShouldShowFormDialog(true, photoUri)
             }
         }
 
@@ -91,17 +98,36 @@ class HomePage: ComponentActivity() {
 
     @Composable
     fun HomeView() {
+        val viewModel: HomeViewModel by viewModels()
+
+        val scope = rememberCoroutineScope()
+        val snackbarHostState = remember { SnackbarHostState() }
+
         Scaffold (
             topBar = {
                 ActionBar()
             },
             floatingActionButton = {
                 CustomFloatingActionButton()
+            },
+            snackbarHost = {
+                SnackbarHost(snackbarHostState)
             }
         ) {
             Box(
                 modifier = Modifier.padding(it)
-            )
+            ) {
+                if (viewModel.shouldShowDetails.value) ImageDetails(
+                    viewModel = viewModel,
+                    onSubmit = {
+                        viewModel.uploadImage { errorMessage ->
+                            scope.launch {
+                                snackbarHostState.showSnackbar(errorMessage)
+                            }
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -161,6 +187,7 @@ class HomePage: ComponentActivity() {
                         )
                     }
                 )
+                expanded = false
             }
             Spacer(modifier = Modifier.size(16.dp))
             CustomFAB(expanded, Icons.Outlined.CameraAlt) {
@@ -179,6 +206,7 @@ class HomePage: ComponentActivity() {
                         )
                     }
                 )
+                expanded = false
             }
             Spacer(modifier = Modifier.size(16.dp))
             FloatingActionButton(
