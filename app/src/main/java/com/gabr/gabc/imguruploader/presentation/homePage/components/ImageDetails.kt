@@ -1,6 +1,7 @@
 package com.gabr.gabc.imguruploader.presentation.homePage.components
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -121,7 +122,8 @@ fun ImageDetails(
         modifier = Modifier
             .fillMaxSize()
             .padding(12.dp)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(rememberScrollState())
+            .background(MaterialTheme.colorScheme.background),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (isPortrait) Column(

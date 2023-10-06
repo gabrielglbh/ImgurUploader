@@ -31,6 +31,7 @@ interface ImageManagerCalls {
     @GET("/3/account/{userName}")
     suspend fun getUserData(@Path("userName") userName: String): Response<ResponseBody>
 
+    // TODO: Have to put the client id somewhere (working but not saving it to profile)
     @Multipart
     @POST("/3/upload")
     suspend fun uploadImage(
@@ -38,7 +39,7 @@ interface ImageManagerCalls {
         @Part("title") title: RequestBody,
         @Part("description") description: RequestBody,
         @Part image: MultipartBody.Part
-    ): Response<JSONObject>
+    ): Response<ResponseBody>
 
     @DELETE("/3/account/{userName}/image/{deleteHash}")
     suspend fun deleteImage(
