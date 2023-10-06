@@ -17,19 +17,18 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.ExitToApp
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Image
+import androidx.compose.material.icons.outlined.ImageNotSupported
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
@@ -37,8 +36,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,12 +48,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.SubcomposeAsyncImage
 import com.gabr.gabc.imguruploader.R
+import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
 import com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
+import com.gabr.gabc.imguruploader.presentation.loginPage.LoginPage
 import com.gabr.gabc.imguruploader.presentation.shared.PermissionsRequester
 import com.gabr.gabc.imguruploader.presentation.shared.components.LoadingScreen
 import dagger.hilt.android.AndroidEntryPoint
@@ -71,6 +76,13 @@ class HomePage: ComponentActivity() {
 
         val viewModel: HomeViewModel by viewModels()
         val photoUri = PermissionsRequester.getPhotoUri(this)
+
+        val account = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            intent.getParcelableExtra(LoginPage.ACCOUNT, Account::class.java)
+        } else {
+            intent.getParcelableExtra(LoginPage.ACCOUNT)
+        }
+        account?.let { viewModel.userData.value = it }
 
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -100,9 +112,18 @@ class HomePage: ComponentActivity() {
     @Composable
     fun HomeView() {
         val viewModel: HomeViewModel by viewModels()
+        val user = viewModel.userData.value
 
         val scope = rememberCoroutineScope()
         val snackbarHostState = remember { SnackbarHostState() }
+
+        LaunchedEffect(key1 = Unit, block = {
+            viewModel.loadImages { errorMessage ->
+                scope.launch {
+                    snackbarHostState.showSnackbar(errorMessage)
+                }
+            }
+        })
 
         Scaffold (
             topBar = {
@@ -118,6 +139,30 @@ class HomePage: ComponentActivity() {
             Box(
                 modifier = Modifier.padding(it)
             ) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Surface (
+                        shape = CircleShape,
+                        modifier = Modifier.size(48.dp).padding(bottom = 6.dp)
+                    ) {
+                        SubcomposeAsyncImage(
+                            model = user.avatar.toString(),
+                            error = {
+                                Icon(
+                                    Icons.Outlined.ImageNotSupported,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.outline
+                                )
+                            },
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                    Text(user.username, style = MaterialTheme.typography.bodyLarge)
+                }
                 if (viewModel.shouldShowDetails.value) ImageDetails(
                     viewModel = viewModel,
                     onSubmit = {
@@ -135,8 +180,6 @@ class HomePage: ComponentActivity() {
 
     @Composable
     fun ActionBar() {
-        val viewModel: HomeViewModel by viewModels()
-
         Box(
             modifier = Modifier
                 .height(64.dp)
@@ -148,22 +191,6 @@ class HomePage: ComponentActivity() {
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End,
-                modifier = Modifier
-                    .padding(end = 8.dp)
-                    .fillMaxWidth()
-            ) {
-                IconButton(
-                    onClick = {
-                        viewModel.signOut()
-                    }
-                ) {
-                    Icon(Icons.AutoMirrored.Outlined.ExitToApp, "")
-
-                }
-            }
         }
     }
 

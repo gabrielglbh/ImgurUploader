@@ -8,9 +8,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.imguruploader.di.ContentResolverProvider
-import com.gabr.gabc.imguruploader.domain.auth.AuthRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
-import com.gabr.gabc.imguruploader.domain.imageManager.ImgurImage
+import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
+import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,13 +24,13 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val authRepository: AuthRepository,
     private val imageManagerRepository: ImageManagerRepository,
     private val contentResolverProvider: ContentResolverProvider,
 ) : ViewModel() {
     private val _formState = MutableStateFlow(ImgFormState())
     val formState: StateFlow<ImgFormState> = _formState.asStateFlow()
 
+    val userData = mutableStateOf(Account("", Uri.EMPTY))
     val images = mutableStateListOf<ImgurImage>()
 
     var isLoading = mutableStateOf(false)
@@ -48,6 +48,21 @@ class HomeViewModel @Inject constructor(
         _formState.value = form
     }
 
+    fun loadImages(onError: (String) -> Unit) {
+        viewModelScope.launch {
+            isLoading.value = true
+            val res = imageManagerRepository.getImages()
+            res.fold(
+                ifLeft = { onError(it.error) },
+                ifRight = { list ->
+                    images.clear()
+                    images.addAll(list)
+                }
+            )
+            isLoading.value = false
+        }
+    }
+
     fun uploadImage(onError: (String) -> Unit) {
         viewModelScope.launch {
             isLoading.value = true
@@ -61,16 +76,10 @@ class HomeViewModel @Inject constructor(
                 ifLeft = { onError(it.error) },
                 ifRight = {
                     shouldShowDetails.value = false
-                    // TODO: getImages call
+                    loadImages(onError)
                 }
             )
             isLoading.value = false
-        }
-    }
-
-    fun signOut() {
-        viewModelScope.launch {
-            authRepository.signOut()
         }
     }
 

@@ -3,6 +3,7 @@ package com.gabr.gabc.imguruploader.infraestructure.imageManager
 import android.net.Uri
 import com.gabr.gabc.imguruploader.di.StringResourcesProvider
 import com.gabr.gabc.imguruploader.domain.http.HttpRepository
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurImageDto
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk

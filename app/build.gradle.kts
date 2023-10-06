@@ -1,8 +1,8 @@
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
-    id("com.google.gms.google-services")
     id("com.google.dagger.hilt.android")
+    id("kotlin-parcelize")
     id("kotlin-kapt")
 }
 
@@ -78,10 +78,6 @@ dependencies {
     implementation("androidx.activity:activity-compose:1.7.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
     implementation("androidx.compose.runtime:runtime-livedata")
-
-    // Firebase Services
-    implementation(platform("com.google.firebase:firebase-bom:26.7.0"))
-    implementation("com.google.firebase:firebase-auth-ktx")
 
     // Dependency Injection
     implementation("com.google.dagger:hilt-android:2.48")

@@ -1,4 +1,4 @@
-package com.gabr.gabc.imguruploader.domain.imageManager
+package com.gabr.gabc.imguruploader.domain.imageManager.models
 
 import android.net.Uri
 

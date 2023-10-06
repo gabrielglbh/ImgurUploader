@@ -1,4 +1,4 @@
-package com.gabr.gabc.imguruploader.infraestructure.imageManager
+package com.gabr.gabc.imguruploader.infraestructure.imageManager.models
 
 import com.google.gson.annotations.SerializedName
 
