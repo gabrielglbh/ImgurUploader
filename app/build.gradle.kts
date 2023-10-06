@@ -115,5 +115,4 @@ dependencies {
 
     // Mocks
     testImplementation("io.mockk:mockk:1.13.8")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.1.0")
 }

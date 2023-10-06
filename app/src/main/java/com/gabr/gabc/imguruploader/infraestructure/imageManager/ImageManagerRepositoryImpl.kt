@@ -10,8 +10,10 @@ import com.gabr.gabc.imguruploader.domain.http.HttpRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.ImgurImage
+import com.gabr.gabc.imguruploader.domain.imageManager.toDto
 import retrofit2.HttpException
 import retrofit2.await
+import java.io.File
 import javax.inject.Inject
 
 class ImageManagerRepositoryImpl @Inject constructor(
@@ -32,10 +34,10 @@ class ImageManagerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun uploadImage(image: ImgurImage): Either<ImageManagerFailure, Unit> {
+    override suspend fun uploadImage(image: ImgurImage, file: File): Either<ImageManagerFailure, Unit> {
         return try {
             val service = http.getImageManagerService()
-            val result = service.uploadImage(image).await()
+            val result = service.uploadImage(image.toDto(file)).await()
             if (result.success) {
                 Right(Unit)
             } else {

@@ -10,7 +10,6 @@ import org.junit.rules.TestWatcher
 import org.junit.runner.Description
 
 /**
- *
  * Tried to mock it on tests with no luck... Using this as a backup
  * https://stackoverflow.com/questions/58303961/kotlin-coroutine-unit-test-fails-with-module-with-the-main-dispatcher-had-faile
  * */

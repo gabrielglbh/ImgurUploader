@@ -11,15 +11,12 @@ import kotlinx.coroutines.test.runTest
 import org.json.JSONObject
 import org.junit.Assert
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 import retrofit2.Call
 import retrofit2.await
 
 class ImageManagerRepositoryImplGetUserNameTest {
-    private val mockStringProvider = mock<StringResourcesProvider> {
-        on { getString(any()) } doReturn ""
+    private val mockStringProvider = mockk<StringResourcesProvider> {
+        every { getString(any()) } returns ""
     }
 
     @Test

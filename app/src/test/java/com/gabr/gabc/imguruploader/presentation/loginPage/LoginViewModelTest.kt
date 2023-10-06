@@ -7,29 +7,28 @@ import com.gabr.gabc.imguruploader.domain.auth.AuthRepository
 import com.gabr.gabc.imguruploader.presentation.loginPage.viewModel.LoginFormState
 import com.gabr.gabc.imguruploader.presentation.loginPage.viewModel.LoginViewModel
 import com.google.firebase.auth.FirebaseUser
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.doAnswer
-import org.mockito.kotlin.doReturn
-import org.mockito.kotlin.mock
 
 class LoginViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
-    private val mockUser = mock<FirebaseUser> {}
-    private val mockAuthFailure = mock<AuthFailure.SignInFailed> {
-        on { error } doReturn "error"
+    private val mockUser = mockk<FirebaseUser>()
+    private val mockAuthFailure = mockk<AuthFailure.SignInFailed> {
+        every { error } returns "error"
     }
 
     @Test
     fun signInUser_Successful() = runTest {
         var result = false
-        val mockAuth = mock<AuthRepository> {
-            onBlocking { signInUser(any(), any()) } doAnswer { Either.Right(mockUser) }
+        val mockAuth = mockk<AuthRepository> {
+            coEvery { signInUser(any(), any()) } answers { Either.Right(mockUser) }
         }
         val viewModel = LoginViewModel(mockAuth)
         viewModel.updateLoginState(LoginFormState("email", "pass"))
@@ -41,8 +40,8 @@ class LoginViewModelTest {
 
     @Test
     fun signInUser_Failure() = runTest {
-        val mockAuth = mock<AuthRepository> {
-            onBlocking { signInUser(any(), any()) } doAnswer { Either.Left(mockAuthFailure) }
+        val mockAuth = mockk<AuthRepository> {
+            coEvery { signInUser(any(), any()) } answers { Either.Left(mockAuthFailure) }
         }
         val viewModel = LoginViewModel(mockAuth)
         viewModel.updateLoginState(LoginFormState("email", "pass"))
@@ -54,8 +53,8 @@ class LoginViewModelTest {
     @Test
     fun createUser_Successful() = runTest {
         var result = false
-        val mockAuth = mock<AuthRepository> {
-            onBlocking { createUser(any(), any()) } doAnswer { Either.Right(mockUser) }
+        val mockAuth = mockk<AuthRepository> {
+            coEvery { createUser(any(), any()) } answers { Either.Right(mockUser) }
         }
         val viewModel = LoginViewModel(mockAuth)
         viewModel.updateLoginState(LoginFormState("email", "pass"))
@@ -67,8 +66,8 @@ class LoginViewModelTest {
 
     @Test
     fun createUser_Failure() = runTest {
-        val mockAuth = mock<AuthRepository> {
-            onBlocking { createUser(any(), any()) } doAnswer { Either.Left(mockAuthFailure) }
+        val mockAuth = mockk<AuthRepository> {
+            coEvery { createUser(any(), any()) } answers { Either.Left(mockAuthFailure) }
         }
         val viewModel = LoginViewModel(mockAuth)
         viewModel.updateLoginState(LoginFormState("email", "pass"))

@@ -6,6 +6,8 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseAuthException
 import com.google.firebase.auth.FirebaseUser
+import io.mockk.every
+import io.mockk.mockk
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -16,26 +18,29 @@ import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.mock
 
 class AuthRepositoryImplSignInUserTest {
-    private val mockUser = mock<FirebaseUser> {}
-    private val mockStringProvider = mock<StringResourcesProvider> {
-        on { getString(any()) } doReturn ""
+    private val mockUser = mockk<FirebaseUser>()
+    private val mockStringProvider = mockk<StringResourcesProvider> {
+        every { getString(any()) } returns ""
     }
     private val email = "email"
     private val password = "password"
 
     @Test
     fun signInUser_Successful() = runTest {
-        val mockAuthResult = mock<AuthResult> {
-            on { user } doReturn mockUser
+        val mockAuthResult = mockk<AuthResult> {
+            every { user } returns mockUser
         }
-        val mockTask = mock<Task<AuthResult>> {
-            on { isComplete } doReturn true
-            on { isSuccessful } doReturn true
+        val mockTask = mockk<Task<AuthResult>> {
+            every { isComplete } returns true
+            every { isSuccessful } returns true
+            every { isCanceled } returns false
+            every { result } returns mockAuthResult
+            every { exception } returns null
         }
-        val mockAuth = mock<FirebaseAuth> {
-            on { signInWithEmailAndPassword(email, password) } doAnswer { mockTask }
-            onBlocking { mockTask.await() } doAnswer { mockAuthResult }
+        val mockAuth = mockk<FirebaseAuth> {
+            every { signInWithEmailAndPassword(email, password) } answers { mockTask }
         }
+
         val repositoryImpl = AuthRepositoryImpl(mockAuth, mockStringProvider)
         val user = repositoryImpl.signInUser(email, password)
         Assert.assertEquals(user.isRight(), true)
@@ -43,17 +48,20 @@ class AuthRepositoryImplSignInUserTest {
 
     @Test
     fun signInUser_Failure_WithUserNull() = runTest {
-        val mockAuthResult = mock<AuthResult> {
-            on { user } doReturn null
+        val mockAuthResult = mockk<AuthResult> {
+            every { user } returns null
         }
-        val mockTask = mock<Task<AuthResult>> {
-            on { isComplete } doReturn true
-            on { isSuccessful } doReturn true
+        val mockTask = mockk<Task<AuthResult>> {
+            every { isComplete } returns true
+            every { isSuccessful } returns true
+            every { isCanceled } returns false
+            every { result } returns mockAuthResult
+            every { exception } returns null
         }
-        val mockAuth = mock<FirebaseAuth> {
-            on { signInWithEmailAndPassword(email, password) } doAnswer { mockTask }
-            onBlocking { mockTask.await() } doAnswer { mockAuthResult }
+        val mockAuth = mockk<FirebaseAuth> {
+            every { signInWithEmailAndPassword(email, password) } answers { mockTask }
         }
+
         val repositoryImpl = AuthRepositoryImpl(mockAuth, mockStringProvider)
         val user = repositoryImpl.signInUser(email, password)
         Assert.assertEquals(user.isLeft(), true)
@@ -61,15 +69,18 @@ class AuthRepositoryImplSignInUserTest {
 
     @Test
     fun signInUser_Failure_WithFirebaseAuthException() = runTest {
-        val mockFirebaseAuthException = mock<FirebaseAuthException> {}
-        val mockTask = mock<Task<AuthResult>> {
-            on { isComplete } doReturn true
-            on { isSuccessful } doReturn false
-            on { exception } doReturn mockFirebaseAuthException
+        val mockFirebaseAuthException = mockk<FirebaseAuthException> {}
+        val mockTask = mockk<Task<AuthResult>> {
+            every { isComplete } returns true
+            every { isSuccessful } returns false
+            every { isCanceled } returns false
+            every { result } returns null
+            every { exception } returns mockFirebaseAuthException
         }
-        val mockAuth = mock<FirebaseAuth> {
-            on { signInWithEmailAndPassword(email, password) } doAnswer { mockTask }
+        val mockAuth = mockk<FirebaseAuth> {
+            every { signInWithEmailAndPassword(email, password) } answers { mockTask }
         }
+
         val repositoryImpl = AuthRepositoryImpl(mockAuth, mockStringProvider)
         val user = repositoryImpl.signInUser(email, password)
         Assert.assertEquals(user.isLeft(), true)
@@ -77,15 +88,18 @@ class AuthRepositoryImplSignInUserTest {
 
     @Test
     fun signInUser_Failure_WithIllegalArgumentException() = runTest {
-        val mockIllegalArgumentException = mock<IllegalArgumentException> {}
-        val mockTask = mock<Task<AuthResult>> {
-            on { isComplete } doReturn true
-            on { isSuccessful } doReturn false
-            on { exception } doReturn mockIllegalArgumentException
+        val mockIllegalArgumentException = mockk<IllegalArgumentException> {}
+        val mockTask = mockk<Task<AuthResult>> {
+            every { isComplete } returns true
+            every { isSuccessful } returns false
+            every { isCanceled } returns false
+            every { result } returns null
+            every { exception } returns mockIllegalArgumentException
         }
-        val mockAuth = mock<FirebaseAuth> {
-            on { signInWithEmailAndPassword(email, password) } doAnswer { mockTask }
+        val mockAuth = mockk<FirebaseAuth> {
+            every { signInWithEmailAndPassword(email, password) } answers { mockTask }
         }
+
         val repositoryImpl = AuthRepositoryImpl(mockAuth, mockStringProvider)
         val user = repositoryImpl.signInUser(email, password)
         Assert.assertEquals(user.isLeft(), true)

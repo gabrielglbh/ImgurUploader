@@ -1,8 +1,8 @@
 package com.gabr.gabc.imguruploader.infraestructure.imageManager
 
-import com.gabr.gabc.imguruploader.domain.imageManager.ImgurImage
 import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.CustomListResponse
 import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.CustomResponse
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurImageDto
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -18,7 +18,7 @@ interface ImageManagerCalls {
 
     @Headers("Authorization: Client-ID clientId")
     @POST("upload")
-    suspend fun uploadImage(@Body image: ImgurImage): Call<CustomResponse>
+    suspend fun uploadImage(@Body image: ImgurImageDto): Call<CustomResponse>
 
     @Headers("Authorization: Bearer accessToken")
     @DELETE("account/{userName}/image/{deleteHash}")
