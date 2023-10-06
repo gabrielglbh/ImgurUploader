@@ -5,4 +5,5 @@ sealed class ImageManagerFailure(open val error: String) {
     data class ImageUploadFailed(override val error: String) : ImageManagerFailure(error)
     data class ImagesRetrievalFailed(override val error: String) : ImageManagerFailure(error)
     data class ImageDeletionFailed(override val error: String) : ImageManagerFailure(error)
+    data class Unauthorized(override val error: String) : ImageManagerFailure(error)
 }

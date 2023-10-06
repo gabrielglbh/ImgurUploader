@@ -3,6 +3,7 @@ package com.gabr.gabc.imguruploader.presentation.loginPage.viewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
+import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
 import com.gabr.gabc.imguruploader.presentation.shared.Constants
@@ -20,7 +21,11 @@ class LoginViewModel @Inject constructor(
             val userName = sharedPreferencesProvider.getPref().getString(Constants.ACCOUNT_NAME, null) ?: ""
             val res = repository.getUserData(userName)
             res.fold(
-                ifLeft = {},
+                ifLeft = { err ->
+                    if (err is ImageManagerFailure.Unauthorized) {
+                        refreshAccessToken(onSessionOK)
+                    }
+                },
                 ifRight = {
                     onSessionOK(it)
                 }
@@ -28,7 +33,7 @@ class LoginViewModel @Inject constructor(
         }
     }
 
-    fun refreshAccessToken() {
+    fun refreshAccessToken(onSessionOK: (Account) -> Unit) {
         viewModelScope.launch {
             val result = repository.getSession(
                 sharedPreferencesProvider.getPref().getString(Constants.REFRESH_TOKEN, null) ?: "",
@@ -39,6 +44,7 @@ class LoginViewModel @Inject constructor(
                 ifLeft = {},
                 ifRight = {
                     saveTokens(it.accessToken, it.refreshToken, it.accountUsername)
+                    getUserData(onSessionOK)
                 }
             )
         }

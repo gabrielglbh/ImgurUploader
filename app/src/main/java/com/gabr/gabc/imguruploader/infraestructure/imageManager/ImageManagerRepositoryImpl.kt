@@ -62,7 +62,11 @@ class ImageManagerRepositoryImpl @Inject constructor(
                 val data = body.get("data").asJsonObject
                 Right(Account(data.get("url").asString, Uri.parse(data.get("avatar").asString)))
             } else {
-                Left(ImageManagerFailure.UserRetrievalFailed(res.getString(R.string.error_imgur_user)))
+                if (result.code() == 401 || result.code() == 403) {
+                    Left(ImageManagerFailure.Unauthorized(""))
+                } else {
+                    Left(ImageManagerFailure.UserRetrievalFailed(res.getString(R.string.error_imgur_user)))
+                }
             }
         } catch (err: HttpException) {
             Left(ImageManagerFailure.UserRetrievalFailed(res.getString(R.string.error_imgur_user)))

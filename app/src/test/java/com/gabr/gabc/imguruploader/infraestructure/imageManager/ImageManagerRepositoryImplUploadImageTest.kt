@@ -1,6 +1,8 @@
 package com.gabr.gabc.imguruploader.infraestructure.imageManager
 
+import android.content.SharedPreferences
 import android.net.Uri
+import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
 import com.gabr.gabc.imguruploader.di.StringResourcesProvider
 import com.gabr.gabc.imguruploader.domain.http.HttpRepository
 import io.mockk.coEvery
@@ -18,6 +20,12 @@ class ImageManagerRepositoryImplUploadImageTest {
     private val mockStringProvider = mockk<StringResourcesProvider> {
         every { getString(any()) } returns ""
     }
+    private val mockSP = mockk<SharedPreferences> {
+        every { getString(any(), any()) } returns ""
+    }
+    private val mockSharedPreferences = mockk<SharedPreferencesProvider> {
+        every { getPref() } returns mockSP
+    }
 
     @Test
     fun uploadImage_Successful() = runTest {
@@ -31,13 +39,13 @@ class ImageManagerRepositoryImplUploadImageTest {
             every { isSuccessful } returns true
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
-            coEvery { uploadImage(any(), any(), any()) } coAnswers { mockResponse }
+            coEvery { uploadImage(any(), any(), any(), any()) } coAnswers { mockResponse }
         }
         val mockHttp = mockk<HttpRepository> {
             every { getImageManagerService() } returns mockImageManagerCalls
         }
 
-        val repositoryImpl = ImageManagerRepositoryImpl(mockHttp, mockStringProvider)
+        val repositoryImpl = ImageManagerRepositoryImpl(mockHttp, mockStringProvider, mockSharedPreferences)
         val user = repositoryImpl.uploadImage("", "", mockFile)
         Assert.assertTrue(user.isRight())
     }
@@ -51,13 +59,13 @@ class ImageManagerRepositoryImplUploadImageTest {
             every { isSuccessful } returns false
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
-            coEvery { uploadImage(any(), any(), any()) } coAnswers { mockResponse }
+            coEvery { uploadImage(any(), any(), any(), any()) } coAnswers { mockResponse }
         }
         val mockHttp = mockk<HttpRepository> {
             every { getImageManagerService() } returns mockImageManagerCalls
         }
 
-        val repositoryImpl = ImageManagerRepositoryImpl(mockHttp, mockStringProvider)
+        val repositoryImpl = ImageManagerRepositoryImpl(mockHttp, mockStringProvider, mockSharedPreferences)
         val user = repositoryImpl.uploadImage("", "", mockFile)
         Assert.assertTrue(user.isLeft())
     }
