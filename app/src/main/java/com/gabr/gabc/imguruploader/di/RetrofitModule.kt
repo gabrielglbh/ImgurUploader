@@ -12,7 +12,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitModule {
     @Provides
     fun provideRetrofitInstance(): Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.imgur.com/3/")
+        .baseUrl("https://api.imgur.com")
         .addConverterFactory(GsonConverterFactory.create())
         .build()
 }

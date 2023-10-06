@@ -1,10 +1,10 @@
-package com.gabr.gabc.imguruploader.infraestructure.imageManager.models
+package com.gabr.gabc.imguruploader.infraestructure.imageManager
 
 import com.google.gson.annotations.SerializedName
 
-data class ImgurImageDto(
+data class ImgurUpdateImageDto(
     @SerializedName("title") val title: String,
     @SerializedName("description") val description: String,
     @SerializedName("image") val image: String,
-    @SerializedName("type") val type: String = "base64"
+    @SerializedName("deletehash") val deleteHash: String = ""
 )

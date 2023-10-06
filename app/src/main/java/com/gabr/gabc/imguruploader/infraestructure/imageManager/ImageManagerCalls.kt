@@ -1,9 +1,7 @@
 package com.gabr.gabc.imguruploader.infraestructure.imageManager
 
-import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.CustomListResponse
-import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.CustomResponse
-import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurImageDto
-import retrofit2.Call
+import org.json.JSONObject
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -12,22 +10,22 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 
 interface ImageManagerCalls {
-    @Headers("Authorization: Bearer accessToken")
-    @GET("account/me/settings")
-    suspend fun getUserName(): Call<CustomResponse>
+    @Headers("Authorization: Bearer a56c4119a16964694b0f4aa57dce87cd5b1269c9")
+    @GET("/3/account/me/settings")
+    suspend fun getUserName(): Response<JSONObject>
 
-    @Headers("Authorization: Client-ID clientId")
-    @POST("upload")
-    suspend fun uploadImage(@Body image: ImgurImageDto): Call<CustomResponse>
+    @Headers("Authorization: Client-ID a622a65842de657")
+    @POST("/3/upload")
+    suspend fun uploadImage(@Body image: ImgurUpdateImageDto): Response<ImgurImageDto>
 
-    @Headers("Authorization: Bearer accessToken")
-    @DELETE("account/{userName}/image/{deleteHash}")
+    @Headers("Authorization: Bearer a56c4119a16964694b0f4aa57dce87cd5b1269c9")
+    @DELETE("/3/account/{userName}/image/{deleteHash}")
     suspend fun deleteImage(
         @Path("userName") userName: String,
         @Path("deleteHash") deleteHash: String
-    ): Call<CustomResponse>
+    ): Response<JSONObject>
 
-    @Headers("Authorization: Bearer accessToken")
-    @GET("account/me/images")
-    suspend fun getImages(): Call<CustomListResponse>
+    @Headers("Authorization: Bearer a56c4119a16964694b0f4aa57dce87cd5b1269c9")
+    @GET("/3/account/me/images")
+    suspend fun getImages(): Response<List<ImgurImageDto>>
 }

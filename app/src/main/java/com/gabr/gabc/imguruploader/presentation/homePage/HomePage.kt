@@ -54,6 +54,7 @@ import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.imguruploader.presentation.shared.PermissionsRequester
+import com.gabr.gabc.imguruploader.presentation.shared.components.LoadingScreen
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -127,6 +128,7 @@ class HomePage: ComponentActivity() {
                         }
                     }
                 )
+                if (viewModel.isLoading.value) LoadingScreen()
             }
         }
     }
