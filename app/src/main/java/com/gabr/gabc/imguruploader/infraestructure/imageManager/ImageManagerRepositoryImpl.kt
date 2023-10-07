@@ -58,9 +58,9 @@ class ImageManagerRepositoryImpl @Inject constructor(
             val service = http.getImageManagerService()
             val result = service.getUserData(userName)
             if (result.isSuccessful) {
-                val body = JsonParser().parse(result.body()!!.string()).asJsonObject
-                val data = body.get("data").asJsonObject
-                Right(Account(data.get("url").asString, Uri.parse(data.get("avatar").asString)))
+                val body = result.body()!!
+                val data = body.data
+                Right(Account(data.username, Uri.parse(data.avatar)))
             } else {
                 if (result.code() == 401 || result.code() == 403) {
                     Left(ImageManagerFailure.Unauthorized(""))
@@ -118,15 +118,16 @@ class ImageManagerRepositoryImpl @Inject constructor(
             val result = service.getImages("Bearer $token")
             if (result.isSuccessful) {
                 val imgurImages = mutableListOf<ImgurImage>()
-                val imageList = result.body()!!
-                imageList.forEach { dto ->
+                val body = result.body()!!
+                val data = body.data
+                data.forEach { dto ->
                     imgurImages.add(
                         ImgurImage(
-                        title = dto.title,
-                        description = dto.description,
-                        deleteHash = dto.deleteHash,
-                        link = Uri.parse(dto.link),
-                    )
+                            title = dto.title,
+                            description = dto.description,
+                            deleteHash = dto.deleteHash,
+                            link = Uri.parse(dto.link),
+                        )
                     )
                 }
                 Right(imgurImages)

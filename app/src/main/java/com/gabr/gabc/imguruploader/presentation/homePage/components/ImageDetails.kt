@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -23,16 +24,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil.compose.AsyncImage
 import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.imguruploader.presentation.shared.Validators
+import com.gabr.gabc.imguruploader.presentation.shared.components.ComposeImage
 import com.gabr.gabc.imguruploader.presentation.shared.components.TextForm
 
 @Composable
@@ -65,7 +67,9 @@ fun ImageDetails(
     }
 
     val image: @Composable () -> Unit = {
-        AsyncImage(model = form.link, contentDescription = "", modifier = Modifier.height(512.dp))
+        form.link?.let { ComposeImage(uri = it, modifier = Modifier.height(512.dp).clip(
+            RoundedCornerShape(4.dp)
+        )) }
     }
     val title: @Composable (modifier: Modifier) -> Unit = { m ->
         TextForm(

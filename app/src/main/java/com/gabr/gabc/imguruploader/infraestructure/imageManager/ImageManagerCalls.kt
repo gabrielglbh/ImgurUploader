@@ -1,6 +1,8 @@
 package com.gabr.gabc.imguruploader.infraestructure.imageManager
 
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.AccountDto
 import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurImageDto
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurResponse
 import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.OAuthDto
 import com.gabr.gabc.imguruploader.presentation.shared.Constants
 import okhttp3.MultipartBody
@@ -29,7 +31,7 @@ interface ImageManagerCalls {
 
     @Headers("Authorization: Client-ID ${Constants.CLIENT_ID}")
     @GET("/3/account/{userName}")
-    suspend fun getUserData(@Path("userName") userName: String): Response<ResponseBody>
+    suspend fun getUserData(@Path("userName") userName: String): Response<ImgurResponse<AccountDto>>
 
     @Multipart
     @POST("/3/upload")
@@ -48,6 +50,6 @@ interface ImageManagerCalls {
         @Path("deleteHash") deleteHash: String
     ): Response<JSONObject>
 
-    @GET("/3/account/me")
-    suspend fun getImages(@Header("Authorization") bearer: String): Response<List<ImgurImageDto>>
+    @GET("/3/account/me/images")
+    suspend fun getImages(@Header("Authorization") bearer: String): Response<ImgurResponse<List<ImgurImageDto>>>
 }
