@@ -54,6 +54,7 @@ class LoginPage: ComponentActivity() {
         viewModel.getUserData {
             val i = Intent(this, HomePage::class.java)
             i.putExtra(ACCOUNT, it)
+            i.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             startActivity(i)
         }
     }

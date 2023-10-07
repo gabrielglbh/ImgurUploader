@@ -65,7 +65,7 @@ fun ImageDetails(
     }
 
     val image: @Composable () -> Unit = {
-        AsyncImage(model = form.link, contentDescription = "", modifier = Modifier.height(256.dp))
+        AsyncImage(model = form.link, contentDescription = "", modifier = Modifier.height(512.dp))
     }
     val title: @Composable (modifier: Modifier) -> Unit = { m ->
         TextForm(

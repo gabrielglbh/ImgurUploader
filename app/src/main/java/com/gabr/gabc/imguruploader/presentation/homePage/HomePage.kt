@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.PickVisualMediaRequest
@@ -105,6 +106,12 @@ class HomePage: ComponentActivity() {
             )
 
         setContent {
+            BackHandler {
+                if (viewModel.shouldShowDetails.value) {
+                    viewModel.updateShouldShowFormDialog(false)
+                }
+            }
+
             HomeView()
         }
     }
@@ -140,12 +147,16 @@ class HomePage: ComponentActivity() {
                 modifier = Modifier.padding(it)
             ) {
                 Column(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(12.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Surface (
                         shape = CircleShape,
-                        modifier = Modifier.size(48.dp).padding(bottom = 6.dp)
+                        modifier = Modifier
+                            .size(48.dp)
+                            .padding(bottom = 6.dp)
                     ) {
                         SubcomposeAsyncImage(
                             model = user.avatar.toString(),
@@ -180,6 +191,8 @@ class HomePage: ComponentActivity() {
 
     @Composable
     fun ActionBar() {
+        val viewModel: HomeViewModel by viewModels()
+
         Box(
             modifier = Modifier
                 .height(64.dp)
@@ -187,7 +200,8 @@ class HomePage: ComponentActivity() {
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = stringResource(R.string.app_name),
+                text = stringResource(
+                    if (viewModel.shouldShowDetails.value) { R.string.dialog_upload_image } else { R.string.app_name }),
                 style = MaterialTheme.typography.headlineMedium,
                 textAlign = TextAlign.Center
             )

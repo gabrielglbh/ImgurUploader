@@ -79,7 +79,12 @@ class ImageManagerRepositoryImpl @Inject constructor(
             val filePart = MultipartBody.Part.createFormData("image", file.name, file.asRequestBody())
 
             val token = sharedPreferencesProvider.getPref().getString(Constants.ACCESS_TOKEN, null) ?: ""
-            val result = service.uploadImage(token, title.toRequestBody(), description.toRequestBody(), filePart)
+            val result = service.uploadImage(
+                bearer = "Bearer $token",
+                title = title.toRequestBody(),
+                description = description.toRequestBody(),
+                image = filePart
+            )
 
             if (result.isSuccessful) {
                 Right(Unit)
@@ -95,7 +100,7 @@ class ImageManagerRepositoryImpl @Inject constructor(
         return try {
             val service = http.getImageManagerService()
             val token = sharedPreferencesProvider.getPref().getString(Constants.ACCESS_TOKEN, null) ?: ""
-            val result = service.deleteImage(token, userName, deleteHash)
+            val result = service.deleteImage("Bearer $token", userName, deleteHash)
             if (result.isSuccessful) {
                 Right(Unit)
             } else {
@@ -110,7 +115,7 @@ class ImageManagerRepositoryImpl @Inject constructor(
         return try {
             val service = http.getImageManagerService()
             val token = sharedPreferencesProvider.getPref().getString(Constants.ACCESS_TOKEN, null) ?: ""
-            val result = service.getImages(token)
+            val result = service.getImages("Bearer $token")
             if (result.isSuccessful) {
                 val imgurImages = mutableListOf<ImgurImage>()
                 val imageList = result.body()!!

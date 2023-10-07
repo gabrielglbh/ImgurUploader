@@ -10,6 +10,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.test.runTest
+import okhttp3.ResponseBody
 import org.json.JSONObject
 import org.junit.Assert
 import org.junit.Test
@@ -35,11 +36,11 @@ class ImageManagerRepositoryImplUploadImageTest {
         val mockFile = mockk<File> {
             every { name } returns "name"
         }
-        val mockResponse = mockk<Response<JSONObject>> {
+        val mockResponse = mockk<Response<ResponseBody>> {
             every { isSuccessful } returns true
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
-            coEvery { uploadImage(any(), any(), any(), any()) } coAnswers { mockResponse }
+            coEvery { uploadImage(any(), any(), any(), any(), any()) } coAnswers { mockResponse }
         }
         val mockHttp = mockk<HttpRepository> {
             every { getImageManagerService() } returns mockImageManagerCalls
@@ -55,11 +56,11 @@ class ImageManagerRepositoryImplUploadImageTest {
         val mockFile = mockk<File> {
             every { name } returns "name"
         }
-        val mockResponse = mockk<Response<JSONObject>> {
+        val mockResponse = mockk<Response<ResponseBody>> {
             every { isSuccessful } returns false
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
-            coEvery { uploadImage(any(), any(), any(), any()) } coAnswers { mockResponse }
+            coEvery { uploadImage(any(), any(), any(), any(), any()) } coAnswers { mockResponse }
         }
         val mockHttp = mockk<HttpRepository> {
             every { getImageManagerService() } returns mockImageManagerCalls
