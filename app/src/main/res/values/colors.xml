@@ -4,7 +4,7 @@
     <color name="secondaryColor">#9A83C3</color>
 
     <color name="labelText">#000000</color>
-    <color name="secondaryText">#AAAAAA</color>
+    <color name="secondaryText">#DCDCDC</color>
     <color name="contrast">#FFFFFF</color>
 
     <color name="backgroundLoading">#20AAAAAA</color>

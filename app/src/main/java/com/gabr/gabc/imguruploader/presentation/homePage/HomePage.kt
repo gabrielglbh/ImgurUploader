@@ -14,8 +14,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import coil.load
+import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.HomePageLayoutBinding
 import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
 import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
@@ -24,6 +25,7 @@ import com.gabr.gabc.imguruploader.presentation.homePage.components.ImgurImageGa
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.imguruploader.presentation.loginPage.LoginPage
 import com.gabr.gabc.imguruploader.presentation.shared.PermissionsRequester
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -44,6 +46,7 @@ class HomePage: AppCompatActivity() {
 
         onBackPressedDispatcher.addCallback(this, true) {
             if (!isLandscape && viewModel.hasImage.value == true) {
+                binding.toolbarWidget.title = getString(R.string.app_name)
                 viewModel.updateHasImage(null)
                 with(supportFragmentManager.beginTransaction()) {
                     supportFragmentManager.findFragmentById(binding.uploadImageForm.id)
@@ -83,12 +86,18 @@ class HomePage: AppCompatActivity() {
             )
 
         viewModel.loadImages { errorMessage ->
-            // TODO: Show snackbar
+            Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_SHORT).show()
         }
 
         binding = HomePageLayoutBinding.inflate(layoutInflater)
         val view = binding.root
         setContentView(view)
+
+        if (!isLandscape && viewModel.hasImage.value == true) {
+            binding.toolbarWidget.title = getString(R.string.upload_image_title)
+        } else {
+            binding.toolbarWidget.title = getString(R.string.app_name)
+        }
 
         val spanCount = if (isLandscape) { 3 } else { 4 }
         binding.imgurImages.layoutManager = StaggeredGridLayoutManager(spanCount, 1)
@@ -100,7 +109,12 @@ class HomePage: AppCompatActivity() {
 
     private fun createUploadImageForm(uri: Uri) {
         val viewModel: HomeViewModel by viewModels()
+        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
         viewModel.updateHasImage(uri)
+        if (!isLandscape) {
+            binding.toolbarWidget.title = getString(R.string.upload_image_title)
+        }
 
         val bundle = Bundle()
         bundle.putParcelable(ImageDetails.PHOTO, uri)
@@ -121,10 +135,19 @@ class HomePage: AppCompatActivity() {
         viewModel.hasImage.observe(this) {
             binding.noPhotoSelected?.visibility = if (it) { View.GONE } else { View.VISIBLE }
         }
+        viewModel.userData.observe(this) {
+            binding.userAvatar.load(it.avatar) {
+                error(R.drawable.broken_image)
+            }
+        }
     }
 
     private fun setAdapterForRecyclerView(images: List<ImgurImage>) {
-        val adapter = ImgurImageGalleryAdapter(images)
+        val viewModel: HomeViewModel by viewModels()
+        val adapter = ImgurImageGalleryAdapter(images) {
+            viewModel.updateHasImage(it.link)
+            // TODO: Another fragment for view details (Only display data and option to remove)
+        }
         binding.imgurImages.adapter = adapter
     }
 

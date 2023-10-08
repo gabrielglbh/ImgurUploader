@@ -1,11 +1,13 @@
 package com.gabr.gabc.imguruploader.presentation.homePage.components
 
+import android.app.Activity
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,6 +16,7 @@ import coil.size.Scale
 import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.FragmentUploadFormBinding
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
+import com.google.android.material.snackbar.Snackbar
 
 class ImageDetails: Fragment() {
     companion object {
@@ -70,7 +73,8 @@ class ImageDetails: Fragment() {
         }
         binding.imgurDescription.setOnEditorActionListener { _, _, _ ->
             binding.imgurDescription.clearFocus()
-            onSubmit()
+            val inputMethodManager = requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
             true
         }
     }
@@ -85,7 +89,7 @@ class ImageDetails: Fragment() {
                 }
             },
             onError = {
-                // TODO: Show snackbar on error
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
             }
         )
     }

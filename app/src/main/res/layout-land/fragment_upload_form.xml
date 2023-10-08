@@ -76,7 +76,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="@string/dialog_upload_image"
+                android:text="@string/upload_image_title"
                 app:layout_constraintEnd_toEndOf="@+id/imgur_description_layout"
                 app:layout_constraintStart_toStartOf="@+id/imgur_description_layout"
                 app:layout_constraintTop_toBottomOf="@+id/imgur_description_layout" />

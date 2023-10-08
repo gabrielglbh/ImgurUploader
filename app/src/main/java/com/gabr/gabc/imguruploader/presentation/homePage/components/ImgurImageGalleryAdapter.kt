@@ -9,7 +9,7 @@ import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.ComponentImgurImageBinding
 import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
 
-class ImgurImageGalleryAdapter(private val images: List<ImgurImage>) :
+class ImgurImageGalleryAdapter(private val images: List<ImgurImage>, private val onClick: (ImgurImage) -> Unit) :
     RecyclerView.Adapter<ImgurImageGalleryAdapter.ImgurImageViewHolder>() {
 
     inner class ImgurImageViewHolder(val binding: ComponentImgurImageBinding)
@@ -24,10 +24,12 @@ class ImgurImageGalleryAdapter(private val images: List<ImgurImage>) :
     override fun onBindViewHolder(viewHolder: ImgurImageViewHolder, position: Int) {
         with(viewHolder){
             with(images[position]) {
-                binding.textView.text = title
                 binding.imgurImage.load(link) {
                     error(R.drawable.broken_image)
                     scale(Scale.FILL)
+                }
+                binding.imgurCard.setOnClickListener {
+                    onClick(images[position])
                 }
             }
         }
