@@ -24,6 +24,7 @@
             app:titleTextAppearance="@style/TitleStyle" />
 
         <FrameLayout
+            android:id="@+id/frameLayout"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -60,11 +61,11 @@
                     android:backgroundTint="@color/secondaryColor"
                     android:contentDescription="@string/gallery"
                     android:visibility="gone"
-                    tools:visibility="visible"
                     app:fabSize="normal"
                     app:layout_constraintBottom_toTopOf="@+id/add_image"
                     app:layout_constraintEnd_toEndOf="@+id/add_image"
-                    app:srcCompat="@drawable/gallery" />
+                    app:srcCompat="@drawable/gallery"
+                    tools:visibility="visible" />
 
                 <com.google.android.material.floatingactionbutton.FloatingActionButton
                     android:id="@+id/add_from_photo"
@@ -74,24 +75,28 @@
                     android:backgroundTint="@color/secondaryColor"
                     android:contentDescription="@string/camera"
                     android:visibility="gone"
-                    tools:visibility="visible"
                     app:fabSize="normal"
                     app:layout_constraintBottom_toTopOf="@+id/add_from_gallery"
                     app:layout_constraintEnd_toEndOf="@+id/add_from_gallery"
                     app:layout_constraintStart_toStartOf="@+id/add_from_gallery"
-                    app:srcCompat="@drawable/camera" />
+                    app:srcCompat="@drawable/camera"
+                    tools:visibility="visible" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </FrameLayout>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/upload_image_form"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_widget"
+            tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails" />
 
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/upload_image_form"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails"/>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
         android:id="@+id/loading_layout"

@@ -4,8 +4,8 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.View
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.ViewModelProvider
 import com.gabr.gabc.imguruploader.databinding.LoginPageLayoutBinding
 import com.gabr.gabc.imguruploader.presentation.homePage.HomePage
 import com.gabr.gabc.imguruploader.presentation.loginPage.viewModel.LoginViewModel
@@ -20,7 +20,6 @@ class LoginPage: AppCompatActivity() {
     }
 
     private lateinit var binding: LoginPageLayoutBinding
-    private lateinit var viewModel: LoginViewModel
 
     private fun extractTokenFromUri(uriFragment: String, tokenKey: String): String {
         val params = uriFragment.split("&")
@@ -33,7 +32,7 @@ class LoginPage: AppCompatActivity() {
         return ""
     }
 
-    private fun getUserData() {
+    private fun getUserData(viewModel: LoginViewModel) {
         viewModel.getUserData {
             val i = Intent(this, HomePage::class.java)
             i.putExtra(ACCOUNT, it)
@@ -45,7 +44,7 @@ class LoginPage: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = run { ViewModelProvider(this)[LoginViewModel::class.java] }
+        val viewModel: LoginViewModel by viewModels()
         val data = intent.data
         if (data != null && data.scheme == Constants.REDIRECT_URL_SCHEME) {
             val uriFragment = data.fragment
@@ -54,10 +53,10 @@ class LoginPage: AppCompatActivity() {
                 val refreshToken = extractTokenFromUri(uriFragment, "refresh_token")
                 val userName = extractTokenFromUri(uriFragment, "account_username")
                 viewModel.saveTokens(accessToken, refreshToken, userName)
-                getUserData()
+                getUserData(viewModel)
             }
         } else {
-            getUserData()
+            getUserData(viewModel)
         }
 
         binding = LoginPageLayoutBinding.inflate(layoutInflater)

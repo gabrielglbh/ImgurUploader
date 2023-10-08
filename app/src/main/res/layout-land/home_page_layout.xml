@@ -51,19 +51,37 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintGuide_percent="0.5"
+                    app:layout_constraintGuide_percent="0.35"
                     app:layout_constraintStart_toStartOf="parent" />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/darker_gray"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <TextView
+                    android:id="@+id/no_photo_selected"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/no_image_selected"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline" />
 
                 <androidx.fragment.app.FragmentContainerView
                     android:id="@+id/upload_image_form"
                     android:layout_width="0dp"
                     android:layout_height="match_parent"
-                    android:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails"
-                    tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails"
-                    app:layout_constraintStart_toEndOf="@+id/guideline"
-                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

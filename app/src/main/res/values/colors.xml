@@ -9,7 +9,7 @@
 
     <color name="backgroundLoading">#20AAAAAA</color>
 
-    <color name="dividerColor">#e6e6e6</color>
+    <color name="backgroundColor">#e6e6e6</color>
     <color name="toolbarBackground">#EDEDED</color>
 
     <color name="errorColor">#CC0000</color>

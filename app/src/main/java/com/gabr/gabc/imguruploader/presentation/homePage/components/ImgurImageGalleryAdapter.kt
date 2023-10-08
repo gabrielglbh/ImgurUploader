@@ -4,6 +4,8 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.size.Scale
+import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.ComponentImgurImageBinding
 import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
 
@@ -23,7 +25,10 @@ class ImgurImageGalleryAdapter(private val images: List<ImgurImage>) :
         with(viewHolder){
             with(images[position]) {
                 binding.textView.text = title
-                binding.imgurImage.load(link)
+                binding.imgurImage.load(link) {
+                    error(R.drawable.broken_image)
+                    scale(Scale.FILL)
+                }
             }
         }
     }

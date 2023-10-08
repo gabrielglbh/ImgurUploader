@@ -2,6 +2,7 @@ package com.gabr.gabc.imguruploader.presentation.homePage.viewModel
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -37,9 +38,13 @@ class HomeViewModel @Inject constructor(
     val images: LiveData<MutableList<ImgurImage>>
         get() = _images
 
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
+
+    private val _hasImage = MutableLiveData(false)
+    val hasImage: LiveData<Boolean>
+        get() = _hasImage
 
     fun updateForm(form: ImgFormState) {
         _formState.value = form
@@ -49,6 +54,11 @@ class HomeViewModel @Inject constructor(
         _userData.value = account
     }
 
+    fun updateHasImage(uri: Uri?) {
+        _hasImage.value = uri != null
+        updateForm(_formState.value.copy(link = uri))
+    }
+
     fun loadImages(onError: (String) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -56,8 +66,12 @@ class HomeViewModel @Inject constructor(
             res.fold(
                 ifLeft = { onError(it.error) },
                 ifRight = { list ->
-                    images.value?.clear()
-                    images.value?.addAll(list)
+                    val aux = mutableListOf<ImgurImage>()
+                    with (aux) {
+                        clear()
+                        addAll(list)
+                    }
+                    _images.value = aux
                 }
             )
             _isLoading.value = false

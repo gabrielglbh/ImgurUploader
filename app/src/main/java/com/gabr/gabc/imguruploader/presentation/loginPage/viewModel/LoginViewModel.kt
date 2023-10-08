@@ -18,7 +18,7 @@ class LoginViewModel @Inject constructor(
     private val repository: ImageManagerRepository,
     private val sharedPreferencesProvider: SharedPreferencesProvider,
 ) : ViewModel() {
-    private val _isLoading = MutableLiveData<Boolean>()
+    private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 

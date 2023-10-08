@@ -8,8 +8,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import coil.load
+import coil.size.Scale
+import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.FragmentUploadFormBinding
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 
@@ -19,12 +21,7 @@ class ImageDetails: Fragment() {
     }
 
     private lateinit var binding: FragmentUploadFormBinding
-    private lateinit var viewModel: HomeViewModel
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        viewModel = requireActivity().run { ViewModelProvider(this)[HomeViewModel::class.java] }
-    }
+    private val viewModel: HomeViewModel by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         binding = FragmentUploadFormBinding.inflate(inflater, container, false)
@@ -34,14 +31,27 @@ class ImageDetails: Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val photo = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireArguments().getParcelable(PHOTO, Uri::class.java)
-        } else {
-            requireArguments().getParcelable(PHOTO)
+        val photo = arguments?.let { bundle ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle.getParcelable(PHOTO, Uri::class.java)
+            } else {
+                bundle.getParcelable(PHOTO)
+            }
         }
 
-        binding.imageToUpload.load(photo)
+        binding.imageToUpload.load(photo) {
+            error(R.drawable.broken_image)
+            scale(Scale.FILL)
+        }
 
+        initForm(savedInstanceState)
+
+        binding.upload.setOnClickListener {
+            onSubmit()
+        }
+    }
+
+    private fun initForm(savedInstanceState: Bundle?) {
         if (savedInstanceState != null) {
             val form = viewModel.formState.value
             binding.imgurTitle.setText(form.title)
@@ -63,15 +73,12 @@ class ImageDetails: Fragment() {
             onSubmit()
             true
         }
-
-        binding.upload.setOnClickListener {
-            onSubmit()
-        }
     }
 
     private fun onSubmit() {
         viewModel.uploadImage(
             onSuccess = {
+                viewModel.updateHasImage(null)
                 with(requireActivity().supportFragmentManager.beginTransaction()) {
                     remove(this@ImageDetails)
                     commit()

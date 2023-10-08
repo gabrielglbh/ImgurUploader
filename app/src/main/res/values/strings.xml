@@ -27,4 +27,5 @@
     <string name="camera">Cámara</string>
     <string name="imgur_image">Imgur image</string>
     <string name="imgur_image_to_upload">Imgur image to upload</string>
+    <string name="no_image_selected">No hay una imagen seleccionada</string>
 </resources>

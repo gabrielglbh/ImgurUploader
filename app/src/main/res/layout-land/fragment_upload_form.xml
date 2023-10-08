@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/contrast"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -15,13 +14,13 @@
 
             <ImageView
                 android:id="@+id/image_to_upload"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="0dp"
+                android:layout_height="128dp"
                 android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="16dp"
                 android:contentDescription="@string/imgur_image_to_upload"
-                android:maxHeight="512dp"
+                android:maxHeight="128dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -31,21 +30,21 @@
                 style="@style/CustomTextInputStyle"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="32dp"
+                android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/image_to_upload"
                 app:layout_constraintTop_toBottomOf="@+id/image_to_upload">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/imgur_title"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:inputType="textCapSentences"
                     android:hint="@string/img_titulo"
-                    android:maxLines="1"
-                    android:maxLength="32" />
+                    android:inputType="textCapSentences"
+                    android:maxLength="32"
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -54,21 +53,20 @@
                 style="@style/CustomTextInputStyle"
                 android:layout_width="0dp"
                 android:layout_height="48dp"
-                android:layout_marginStart="32dp"
                 android:layout_marginTop="8dp"
-                android:layout_marginEnd="32dp"
+                android:layout_marginEnd="16dp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/imgur_title_layout"
                 app:layout_constraintTop_toBottomOf="@+id/imgur_title_layout">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/imgur_description"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:inputType="textCapSentences"
                     android:hint="@string/img_description"
-                    android:maxLines="1"
-                    android:maxLength="32" />
+                    android:inputType="textCapSentences"
+                    android:maxLength="32"
+                    android:maxLines="1" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
