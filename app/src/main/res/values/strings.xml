@@ -21,4 +21,10 @@
     <string name="dialog_upload_image">Subir foto</string>
     <string name="img_titulo">Titulo</string>
     <string name="img_description">Descripción</string>
+
+    <string name="action">Añadir Foto</string>
+    <string name="gallery">Galería</string>
+    <string name="camera">Cámara</string>
+    <string name="imgur_image">Imgur image</string>
+    <string name="imgur_image_to_upload">Imgur image to upload</string>
 </resources>

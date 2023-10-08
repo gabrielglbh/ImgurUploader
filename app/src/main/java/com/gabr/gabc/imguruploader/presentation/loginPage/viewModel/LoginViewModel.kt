@@ -1,5 +1,7 @@
 package com.gabr.gabc.imguruploader.presentation.loginPage.viewModel
 
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
@@ -16,8 +18,13 @@ class LoginViewModel @Inject constructor(
     private val repository: ImageManagerRepository,
     private val sharedPreferencesProvider: SharedPreferencesProvider,
 ) : ViewModel() {
+    private val _isLoading = MutableLiveData<Boolean>()
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
     fun getUserData(onSessionOK: (Account) -> Unit) {
         viewModelScope.launch {
+            _isLoading.value = true
             val userName = sharedPreferencesProvider.getPref().getString(Constants.ACCOUNT_NAME, null) ?: ""
             val res = repository.getUserData(userName)
             res.fold(
@@ -30,6 +37,7 @@ class LoginViewModel @Inject constructor(
                     onSessionOK(it)
                 }
             )
+            _isLoading.value = false
         }
     }
 

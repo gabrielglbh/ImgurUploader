@@ -1,3 +1,37 @@
 <resources>
-    <style name="Theme.ImgurUploader" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.ImgurUploader" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/primaryColor</item>
+        <item name="colorPrimaryVariant">@color/secondaryColor</item>
+        <item name="android:statusBarColor" >?attr/colorPrimaryVariant</item>
+        <item name="materialButtonStyle">@style/CustomButton</item>
+        <item name="android:windowLightStatusBar">true</item>
+    </style>
+
+    <!-- Material Button Style -->
+    <style name="CustomButton" parent="Widget.MaterialComponents.Button">
+        <item name="shapeAppearanceOverlay">@style/CustomShapeAppearance</item>
+    </style>
+
+    <style name="CustomShapeAppearance">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">16dp</item>
+        <item name="android:textColor">@color/contrast</item>
+        <item name="android:layout_height">70dp</item>
+    </style>
+
+    <!-- Material Toolbar Title Style -->
+    <style name="TitleStyle" parent="TextAppearance.AppCompat.Widget.ActionBar.Title">
+        <item name="android:textColor">@color/labelText</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <!-- TextInputLayout Style -->
+    <style name="CustomTextInputStyle" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+        <item name="counterEnabled">false</item>
+        <item name="errorEnabled">true</item>
+        <item name="hintEnabled">false</item>
+        <item name="boxStrokeColor">@color/primaryColor</item>
+        <item name="android:imeOptions">actionNext</item>
+    </style>
 </resources>

@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar_widget"
+            android:layout_width="match_parent"
+            android:layout_height="70dp"
+            android:background="@color/primaryColor"
+            app:buttonGravity="center_vertical"
+            android:elevation="8dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:title="@string/app_name"
+            app:titleTextColor="@color/contrast"
+            app:titleTextAppearance="@style/TitleStyle" />
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_widget">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/imgur_images"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:padding="12dp"
+                    app:layout_constraintEnd_toStartOf="@+id/guideline"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintGuide_percent="0.5"
+                    app:layout_constraintStart_toStartOf="parent" />
+
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/upload_image_form"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails"
+                    tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails"
+                    app:layout_constraintStart_toEndOf="@+id/guideline"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+                    android:id="@+id/add_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="24dp"
+                    android:layout_marginBottom="24dp"
+                    android:text="@string/action"
+                    app:icon="@drawable/add_photo"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/add_from_gallery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:contentDescription="@string/gallery"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    app:fabSize="normal"
+                    app:layout_constraintBottom_toTopOf="@+id/add_image"
+                    app:layout_constraintEnd_toEndOf="@+id/add_image"
+                    app:srcCompat="@drawable/gallery" />
+
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/add_from_photo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:backgroundTint="@color/secondaryColor"
+                    android:contentDescription="@string/camera"
+                    android:visibility="gone"
+                    tools:visibility="visible"
+                    app:fabSize="normal"
+                    app:layout_constraintBottom_toTopOf="@+id/add_from_gallery"
+                    app:layout_constraintEnd_toEndOf="@+id/add_from_gallery"
+                    app:layout_constraintStart_toStartOf="@+id/add_from_gallery"
+                    app:srcCompat="@drawable/camera" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </FrameLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <include
+        android:id="@+id/loading_layout"
+        layout="@layout/component_loading_layout"/>
+
+</FrameLayout>
