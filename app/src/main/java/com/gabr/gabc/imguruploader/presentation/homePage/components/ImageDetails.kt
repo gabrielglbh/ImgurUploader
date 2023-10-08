@@ -1,161 +1,96 @@
 package com.gabr.gabc.imguruploader.presentation.homePage.components
 
-import android.content.res.Configuration
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import android.app.Activity
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import androidx.core.widget.doOnTextChanged
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import coil.load
+import coil.size.Scale
 import com.gabr.gabc.imguruploader.R
+import com.gabr.gabc.imguruploader.databinding.FragmentUploadFormBinding
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
-import com.gabr.gabc.imguruploader.presentation.shared.Validators
-import com.gabr.gabc.imguruploader.presentation.shared.components.ComposeImage
-import com.gabr.gabc.imguruploader.presentation.shared.components.TextForm
+import com.google.android.material.snackbar.Snackbar
 
-@Composable
-fun ImageDetails(
-    viewModel: HomeViewModel,
-    onSubmit: () -> Unit,
-) {
-    val focusManager = LocalFocusManager.current
-    val configuration = LocalConfiguration.current
-    val form = viewModel.formState.collectAsState().value
-
-    val isPortrait = when (configuration.orientation) {
-        Configuration.ORIENTATION_LANDSCAPE -> { false }
-        else -> { true }
+class ImageDetails: Fragment() {
+    companion object {
+        const val PHOTO = "PHOTO"
     }
 
-    var errorTitle by remember { mutableStateOf(false) }
-    var errorDescription by remember { mutableStateOf(false) }
+    private lateinit var binding: FragmentUploadFormBinding
+    private val viewModel: HomeViewModel by activityViewModels()
 
-    val errorForm = stringResource(R.string.error_empty_form)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        binding = FragmentUploadFormBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
-    fun onFormCompleted() {
-        focusManager.clearFocus()
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        if (errorTitle || errorDescription) {
-            viewModel.updateForm(form.copy(error = errorForm))
-        } else {
+        val photo = arguments?.let { bundle ->
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                bundle.getParcelable(PHOTO, Uri::class.java)
+            } else {
+                bundle.getParcelable(PHOTO)
+            }
+        }
+
+        binding.imageToUpload.load(photo) {
+            error(R.drawable.broken_image)
+            scale(Scale.FILL)
+        }
+
+        initForm(savedInstanceState)
+
+        binding.upload.setOnClickListener {
             onSubmit()
         }
     }
 
-    val image: @Composable () -> Unit = {
-        form.link?.let { ComposeImage(uri = it, modifier = Modifier.height(512.dp).clip(
-            RoundedCornerShape(4.dp)
-        )) }
-    }
-    val title: @Composable (modifier: Modifier) -> Unit = { m ->
-        TextForm(
-            labelId = R.string.img_titulo,
-            onValueChange = {
-                viewModel.updateForm(form.copy(title = it, error = ""))
-                errorTitle = Validators.isTitleInvalid(form.title)
-            },
-            value = form.title,
-            imeAction = ImeAction.Next,
-            isError = errorTitle,
-            modifier = m
-        )
-    }
-    val description: @Composable (modifier: Modifier) -> Unit = { m ->
-        TextForm(
-            labelId = R.string.img_description,
-            onValueChange = {
-                viewModel.updateForm(form.copy(description = it, error = ""))
-                errorDescription = Validators.isDescriptionInvalid(form.description)
-            },
-            value = form.description,
-            isError = errorDescription,
-            onSubmitWithImeAction = { onFormCompleted() },
-            modifier = m
-        )
-    }
-    val errorText: @Composable () -> Unit = {
-        Text(
-            form.error,
-            color = MaterialTheme.colorScheme.error,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp),
-        )
-    }
-    val button: @Composable () -> Unit = {
-        Button(
-            modifier = Modifier
-                .padding(horizontal = 24.dp).run {
-                    if (isPortrait) fillMaxWidth()
-                    else this
-                },
-            onClick = { onFormCompleted() }
-        ) {
-            Text(
-                stringResource(R.string.dialog_upload)
-            )
+    private fun initForm(savedInstanceState: Bundle?) {
+        if (savedInstanceState != null) {
+            val form = viewModel.formState.value
+            binding.imgurTitle.setText(form.title)
+            binding.imgurDescription.setText(form.description)
+        }
+        binding.imgurTitle.doOnTextChanged { text, _, _, _ ->
+            viewModel.updateForm(viewModel.formState.value.copy(title = text.toString()))
+        }
+        binding.imgurDescription.doOnTextChanged { text, _, _, _ ->
+            viewModel.updateForm(viewModel.formState.value.copy(description = text.toString()))
+        }
+        binding.imgurTitle.setOnEditorActionListener { _, _, _ ->
+            binding.imgurTitle.clearFocus()
+            binding.imgurDescription.requestFocus()
+            true
+        }
+        binding.imgurDescription.setOnEditorActionListener { _, _, _ ->
+            binding.imgurDescription.clearFocus()
+            val inputMethodManager = requireActivity().getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputMethodManager.hideSoftInputFromWindow(view?.windowToken, 0)
+            true
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(12.dp)
-            .verticalScroll(rememberScrollState())
-            .background(MaterialTheme.colorScheme.background),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        if (isPortrait) Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            image()
-            Spacer(modifier = Modifier.size(8.dp))
-            title(
-                Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 8.dp))
-            description(Modifier.fillMaxWidth())
-            if (form.error.isNotEmpty()) errorText()
-            Spacer(modifier = Modifier.size(12.dp))
-            button()
-        } else Row {
-            image()
-            Spacer(modifier = Modifier.size(8.dp))
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                title(Modifier.padding(bottom = 8.dp))
-                description(Modifier)
-                if (form.error.isNotEmpty()) errorText()
-                Spacer(modifier = Modifier.size(12.dp))
-                button()
+    private fun onSubmit() {
+        viewModel.uploadImage(
+            onSuccess = {
+                viewModel.updateHasImage(null)
+                with(requireActivity().supportFragmentManager.beginTransaction()) {
+                    remove(this@ImageDetails)
+                    commit()
+                }
+            },
+            onError = {
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_SHORT).show()
             }
-        }
-
+        )
     }
 }

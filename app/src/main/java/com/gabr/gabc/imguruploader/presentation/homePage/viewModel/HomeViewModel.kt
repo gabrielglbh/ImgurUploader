@@ -3,8 +3,8 @@ package com.gabr.gabc.imguruploader.presentation.homePage.viewModel
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.imguruploader.di.ContentResolverProvider
@@ -30,42 +30,57 @@ class HomeViewModel @Inject constructor(
     private val _formState = MutableStateFlow(ImgFormState())
     val formState: StateFlow<ImgFormState> = _formState.asStateFlow()
 
-    val userData = mutableStateOf(Account("", Uri.EMPTY))
-    val images = mutableStateListOf<ImgurImage>()
+    private val _userData = MutableLiveData<Account>()
+    val userData: LiveData<Account>
+        get() = _userData
 
-    var isLoading = mutableStateOf(false)
-       private set
+    private val _images = MutableLiveData<MutableList<ImgurImage>>()
+    val images: LiveData<MutableList<ImgurImage>>
+        get() = _images
 
-    var shouldShowDetails = mutableStateOf(false)
-        private set
+    private val _isLoading = MutableLiveData(false)
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
 
-    fun updateShouldShowFormDialog(value: Boolean, uri: Uri = Uri.EMPTY) {
-        shouldShowDetails.value = value
-        updateForm(_formState.value.copy(link = uri))
-    }
+    private val _hasImage = MutableLiveData(false)
+    val hasImage: LiveData<Boolean>
+        get() = _hasImage
 
     fun updateForm(form: ImgFormState) {
         _formState.value = form
     }
 
+    fun updateUserData(account: Account) {
+        _userData.value = account
+    }
+
+    fun updateHasImage(uri: Uri?) {
+        _hasImage.value = uri != null
+        updateForm(_formState.value.copy(link = uri))
+    }
+
     fun loadImages(onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoading.value = true
+            _isLoading.value = true
             val res = imageManagerRepository.getImages()
             res.fold(
                 ifLeft = { onError(it.error) },
                 ifRight = { list ->
-                    images.clear()
-                    images.addAll(list)
+                    val aux = mutableListOf<ImgurImage>()
+                    with (aux) {
+                        clear()
+                        addAll(list)
+                    }
+                    _images.value = aux
                 }
             )
-            isLoading.value = false
+            _isLoading.value = false
         }
     }
 
-    fun uploadImage(onError: (String) -> Unit) {
+    fun uploadImage(onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
-            isLoading.value = true
+            _isLoading.value = true
             val formValue = _formState.value
             val res = imageManagerRepository.uploadImage(
                 formValue.title,
@@ -75,11 +90,11 @@ class HomeViewModel @Inject constructor(
             res.fold(
                 ifLeft = { onError(it.error) },
                 ifRight = {
-                    shouldShowDetails.value = false
+                    onSuccess()
                     loadImages(onError)
                 }
             )
-            isLoading.value = false
+            _isLoading.value = false
         }
     }
 
