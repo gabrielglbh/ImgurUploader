@@ -1,63 +1,62 @@
 package com.gabr.gabc.imguruploader.presentation.loginPage.viewModel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.gabr.gabc.imguruploader.domain.auth.AuthRepository
+import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
+import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
+import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
+import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
+import com.gabr.gabc.imguruploader.presentation.shared.Constants
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val repository: AuthRepository,
+    private val repository: ImageManagerRepository,
+    private val sharedPreferencesProvider: SharedPreferencesProvider,
 ) : ViewModel() {
-    private val _formState = MutableStateFlow(LoginFormState())
-    val formState: StateFlow<LoginFormState> = _formState.asStateFlow()
-
-    var isLoading by mutableStateOf(false)
-        private set
-
-    fun updateLoginState(state: LoginFormState) {
-        _formState.value = state
-    }
-
-    fun signInUser(ifRight: () -> Unit) {
+    fun getUserData(onSessionOK: (Account) -> Unit) {
         viewModelScope.launch {
-            isLoading = true
-            val state = _formState.value
-            val result = repository.signInUser(state.email, state.password)
-            result.fold(
-                ifLeft = {
-                    _formState.value = state.copy(error = it.error, password = "")
+            val userName = sharedPreferencesProvider.getPref().getString(Constants.ACCOUNT_NAME, null) ?: ""
+            val res = repository.getUserData(userName)
+            res.fold(
+                ifLeft = { err ->
+                    if (err is ImageManagerFailure.Unauthorized) {
+                        refreshAccessToken(onSessionOK)
+                    }
                 },
                 ifRight = {
-                    ifRight()
+                    onSessionOK(it)
                 }
             )
-            isLoading = false
         }
     }
 
-    fun createUser(ifRight: () -> Unit) {
+    fun refreshAccessToken(onSessionOK: (Account) -> Unit) {
         viewModelScope.launch {
-            isLoading = true
-            val state = _formState.value
-            val userCreation = repository.createUser(state.email, state.password)
-            userCreation.fold(
-                ifLeft = {
-                    _formState.value = state.copy(error = it.error, password = "")
-                },
+            val result = repository.getSession(
+                sharedPreferencesProvider.getPref().getString(Constants.REFRESH_TOKEN, null) ?: "",
+                Constants.CLIENT_ID,
+                Constants.SECRET_CLIENT_ID,
+            )
+            result.fold(
+                ifLeft = {},
                 ifRight = {
-                    ifRight()
+                    saveTokens(it.accessToken, it.refreshToken, it.accountUsername)
+                    getUserData(onSessionOK)
                 }
             )
-            isLoading = false
+        }
+    }
+
+    fun saveTokens(accessToken: String, refreshToken: String, userName: String) {
+        val p = sharedPreferencesProvider.getPref()
+        with (p.edit()) {
+            putString(Constants.ACCESS_TOKEN, accessToken)
+            putString(Constants.REFRESH_TOKEN, refreshToken)
+            putString(Constants.ACCOUNT_NAME, userName)
+            apply()
         }
     }
 }

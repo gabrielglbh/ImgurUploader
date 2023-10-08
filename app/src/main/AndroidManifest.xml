@@ -41,20 +41,21 @@
         </provider>
 
         <activity
-            android:name=".presentation.splashPage.SplashPage"
+            android:name=".presentation.loginPage.LoginPage"
             android:exported="true"
             android:theme="@style/Theme.ImgurUploader"
             android:windowSoftInputMode="adjustResize" >
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="com.gabr.gabc.imguruploader.auth" />
+            </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".presentation.loginPage.LoginPage"
-            android:exported="true"
-            android:theme="@style/Theme.ImgurUploader"
-            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".presentation.homePage.HomePage"
             android:exported="true"

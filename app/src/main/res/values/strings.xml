@@ -10,4 +10,15 @@
     <string name="register_button">Registrar</string>
     <string name="register_toggle_1">No tengo una cuenta</string>
     <string name="register_toggle_2">Ya tengo cuenta</string>
+
+    <string name="error_imgur_user">No se ha podido recoger el usuario, inténtalo de nuevo</string>
+    <string name="error_imgur_upload">No se ha podido subir la foto, inténtalo de nuevo</string>
+    <string name="error_imgur_delete">No se ha podido eliminar la foto, inténtalo de nuevo</string>
+    <string name="error_imgur_get_images">No se han podido recoger las fotos, inténtalo de nuevo</string>
+
+    <string name="dialog_upload">Subir</string>
+    <string name="dialog_delete">Eliminar</string>
+    <string name="dialog_upload_image">Subir foto</string>
+    <string name="img_titulo">Titulo</string>
+    <string name="img_description">Descripción</string>
 </resources>
