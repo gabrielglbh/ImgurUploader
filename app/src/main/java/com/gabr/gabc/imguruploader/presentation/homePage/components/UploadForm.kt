@@ -61,10 +61,10 @@ class UploadForm: Fragment() {
             binding.imgurDescription.setText(form.description)
         }
         binding.imgurTitle.doOnTextChanged { text, _, _, _ ->
-            viewModel.updateForm(viewModel.formState.value.copy(title = text.toString()))
+            viewModel.setForm(viewModel.formState.value.copy(title = text.toString()))
         }
         binding.imgurDescription.doOnTextChanged { text, _, _, _ ->
-            viewModel.updateForm(viewModel.formState.value.copy(description = text.toString()))
+            viewModel.setForm(viewModel.formState.value.copy(description = text.toString()))
         }
         binding.imgurTitle.setOnEditorActionListener { _, _, _ ->
             binding.imgurTitle.clearFocus()
@@ -82,7 +82,6 @@ class UploadForm: Fragment() {
     private fun onSubmit() {
         viewModel.uploadImage(
             onSuccess = {
-                viewModel.updateHasImage(null)
                 with(requireActivity().supportFragmentManager.beginTransaction()) {
                     remove(this@UploadForm)
                     commit()

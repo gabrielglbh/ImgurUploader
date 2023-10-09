@@ -20,6 +20,7 @@
     <string name="action">Añadir Foto</string>
     <string name="gallery">Galería</string>
     <string name="camera">Cámara</string>
+    <string name="details">Detalles</string>
 
     <string name="imgur_image">Imgur image</string>
     <string name="imgur_image_to_upload">Imgur image to upload</string>

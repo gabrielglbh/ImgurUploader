@@ -99,6 +99,16 @@
                     app:layout_constraintTop_toTopOf="parent"
                     tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.UploadForm" />
 
+                <androidx.fragment.app.FragmentContainerView
+                    android:id="@+id/image_details"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="@+id/guideline"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails" />
+
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <androidx.constraintlayout.widget.ConstraintLayout

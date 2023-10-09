@@ -112,6 +112,16 @@
             app:layout_constraintTop_toBottomOf="@+id/toolbar_widget"
             tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.UploadForm" />
 
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/image_details"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar_widget"
+            tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
