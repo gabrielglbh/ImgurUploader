@@ -20,7 +20,7 @@ import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.HomePageLayoutBinding
 import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
 import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
-import com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails
+import com.gabr.gabc.imguruploader.presentation.homePage.components.UploadForm
 import com.gabr.gabc.imguruploader.presentation.homePage.components.ImgurImageGalleryAdapter
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.gabr.gabc.imguruploader.presentation.loginPage.LoginPage
@@ -117,10 +117,10 @@ class HomePage: AppCompatActivity() {
         }
 
         val bundle = Bundle()
-        bundle.putParcelable(ImageDetails.PHOTO, uri)
+        bundle.putParcelable(UploadForm.PHOTO, uri)
         supportFragmentManager.commit {
             setReorderingAllowed(true)
-            add<ImageDetails>(binding.uploadImageForm.id, args = bundle)
+            add<UploadForm>(binding.uploadImageForm.id, args = bundle)
         }
 
     }
@@ -133,7 +133,11 @@ class HomePage: AppCompatActivity() {
             setAdapterForRecyclerView(it)
         }
         viewModel.hasImage.observe(this) {
+            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
             binding.noPhotoSelected?.visibility = if (it) { View.GONE } else { View.VISIBLE }
+            if (!isLandscape && !it) {
+                binding.toolbarWidget.title = getString(R.string.app_name)
+            }
         }
         viewModel.userData.observe(this) {
             binding.userAvatar.load(it.avatar) {

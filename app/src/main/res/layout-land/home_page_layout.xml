@@ -97,7 +97,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="@+id/guideline"
                     app:layout_constraintTop_toTopOf="parent"
-                    tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails" />
+                    tools:name="com.gabr.gabc.imguruploader.presentation.homePage.components.UploadForm" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

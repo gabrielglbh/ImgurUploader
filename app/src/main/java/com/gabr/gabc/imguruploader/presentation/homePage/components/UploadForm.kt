@@ -18,7 +18,7 @@ import com.gabr.gabc.imguruploader.databinding.FragmentUploadFormBinding
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
 import com.google.android.material.snackbar.Snackbar
 
-class ImageDetails: Fragment() {
+class UploadForm: Fragment() {
     companion object {
         const val PHOTO = "PHOTO"
     }
@@ -84,7 +84,7 @@ class ImageDetails: Fragment() {
             onSuccess = {
                 viewModel.updateHasImage(null)
                 with(requireActivity().supportFragmentManager.beginTransaction()) {
-                    remove(this@ImageDetails)
+                    remove(this@UploadForm)
                     commit()
                 }
             },

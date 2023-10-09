@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryColor">#673AB7</color>
+    <color name="secondaryColor">#9A83C3</color>
+
+    <color name="labelText">#FFFFFF</color>
+    <color name="secondaryText">#DCDCDC</color>
+    <color name="contrast">#000000</color>
+
+    <color name="backgroundLoading">#20353535</color>
+
+    <color name="backgroundColor">#232323</color>
+    <color name="toolbarBackground">#1B1B1B</color>
+
+    <color name="errorColor">#CC0000</color>
+</resources>
