@@ -20,6 +20,7 @@ import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.HomePageLayoutBinding
 import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
 import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
+import com.gabr.gabc.imguruploader.presentation.homePage.components.ImageDetails
 import com.gabr.gabc.imguruploader.presentation.homePage.components.UploadForm
 import com.gabr.gabc.imguruploader.presentation.homePage.components.ImgurImageGalleryAdapter
 import com.gabr.gabc.imguruploader.presentation.homePage.viewModel.HomeViewModel
@@ -38,32 +39,26 @@ class HomePage: AppCompatActivity() {
 
     private lateinit var binding: HomePageLayoutBinding
 
+    private var isPortrait = true
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val viewModel: HomeViewModel by viewModels()
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
         onBackPressedDispatcher.addCallback(this, true) {
-            if (!isLandscape && viewModel.hasImage.value == true) {
-                binding.toolbarWidget.title = getString(R.string.app_name)
-                viewModel.updateHasImage(null)
-                with(supportFragmentManager.beginTransaction()) {
-                    supportFragmentManager.findFragmentById(binding.uploadImageForm.id)
-                        ?.let { remove(it) }
-                    commit()
-                }
-            }
+            onBackPressedActions()
         }
 
         val photoUri = PermissionsRequester.getPhotoUri(this)
+        isPortrait = resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT
 
         val account = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             intent.getParcelableExtra(LoginPage.ACCOUNT, Account::class.java)
         } else {
             intent.getParcelableExtra(LoginPage.ACCOUNT)
         }
-        account?.let { viewModel.updateUserData(it) }
+        account?.let { viewModel.setUserData(it) }
 
         pickMedia =
             registerForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -93,13 +88,9 @@ class HomePage: AppCompatActivity() {
         val view = binding.root
         setContentView(view)
 
-        if (!isLandscape && viewModel.hasImage.value == true) {
-            binding.toolbarWidget.title = getString(R.string.upload_image_title)
-        } else {
-            binding.toolbarWidget.title = getString(R.string.app_name)
-        }
+        setToolbarTitleUponFragments()
 
-        val spanCount = if (isLandscape) { 3 } else { 4 }
+        val spanCount = if (isPortrait) { 3 } else { 4 }
         binding.imgurImages.layoutManager = GridLayoutManager(this, spanCount)
         setAdapterForRecyclerView(viewModel.images.value ?: listOf())
 
@@ -107,22 +98,58 @@ class HomePage: AppCompatActivity() {
         initFloatingActionButtons()
     }
 
+    private fun onBackPressedActions() {
+        val viewModel: HomeViewModel by viewModels()
+        if (isPortrait) {
+            binding.toolbarWidget.title = getString(R.string.app_name)
+            with(supportFragmentManager.beginTransaction()) {
+                supportFragmentManager.findFragmentById(binding.uploadImageForm.id)
+                    ?.let { remove(it) }
+                supportFragmentManager.findFragmentById(binding.imageDetails.id)
+                    ?.let { remove(it) }
+                commit()
+            }
+
+            if (viewModel.hasImageToUpload.value == true) {
+                viewModel.setHasImageToUpload(null)
+            }
+            if (viewModel.isDisplayingImageDetails.value == true) {
+                viewModel.setIsDisplayingImageDetails(false)
+            }
+        }
+    }
+
+    private fun setToolbarTitleUponFragments() {
+        val viewModel: HomeViewModel by viewModels()
+
+        if (isPortrait) {
+            if (viewModel.hasImageToUpload.value == true) {
+                binding.toolbarWidget.title = getString(R.string.upload_image_title)
+            }
+            if (viewModel.isDisplayingImageDetails.value == true) {
+                binding.toolbarWidget.title = getString(R.string.details)
+            }
+        } else {
+            binding.toolbarWidget.title = getString(R.string.app_name)
+        }
+    }
+
     private fun createUploadImageForm(uri: Uri) {
         val viewModel: HomeViewModel by viewModels()
-        val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
 
-        viewModel.updateHasImage(uri)
-        if (!isLandscape) {
+        viewModel.setHasImageToUpload(uri)
+        if (isPortrait) {
             binding.toolbarWidget.title = getString(R.string.upload_image_title)
         }
 
         val bundle = Bundle()
         bundle.putParcelable(UploadForm.PHOTO, uri)
         supportFragmentManager.commit {
+            supportFragmentManager.findFragmentById(binding.imageDetails.id)?.let { remove(it) }
+            supportFragmentManager.findFragmentById(binding.uploadImageForm.id)?.let { remove(it) }
             setReorderingAllowed(true)
             add<UploadForm>(binding.uploadImageForm.id, args = bundle)
         }
-
     }
 
     private fun initLiveDataObservables(viewModel: HomeViewModel) {
@@ -132,12 +159,14 @@ class HomePage: AppCompatActivity() {
         viewModel.images.observe(this) {
             setAdapterForRecyclerView(it)
         }
-        viewModel.hasImage.observe(this) {
-            val isLandscape = resources.configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        viewModel.hasImageToUpload.observe(this) {
             binding.noPhotoSelected?.visibility = if (it) { View.GONE } else { View.VISIBLE }
-            if (!isLandscape && !it) {
-                binding.toolbarWidget.title = getString(R.string.app_name)
-            }
+            resetToolbar(it)
+        }
+        viewModel.isDisplayingImageDetails.observe(this) {
+            val hasImageToUpdate = viewModel.hasImageToUpload.value
+            binding.noPhotoSelected?.visibility = if (!it && hasImageToUpdate == false) { View.VISIBLE } else { View.GONE }
+            resetToolbar(it)
         }
         viewModel.userData.observe(this) {
             binding.userAvatar.load(it.avatar) {
@@ -147,12 +176,28 @@ class HomePage: AppCompatActivity() {
     }
 
     private fun setAdapterForRecyclerView(images: List<ImgurImage>) {
-        val viewModel: HomeViewModel by viewModels()
         val adapter = ImgurImageGalleryAdapter(images) {
-            viewModel.updateHasImage(it.link)
-            // TODO: Another fragment for view details (Only display data and option to remove)
+            onImgurImageClick(it)
         }
         binding.imgurImages.adapter = adapter
+    }
+
+    private fun onImgurImageClick(image: ImgurImage) {
+        val viewModel: HomeViewModel by viewModels()
+
+        viewModel.setIsDisplayingImageDetails(true)
+        if (isPortrait) {
+            binding.toolbarWidget.title = getString(R.string.details)
+        }
+
+        val bundle = Bundle()
+        bundle.putParcelable(ImageDetails.IMGUR_IMAGE, image)
+        supportFragmentManager.commit {
+            supportFragmentManager.findFragmentById(binding.uploadImageForm.id)?.let { remove(it) }
+            supportFragmentManager.findFragmentById(binding.imageDetails.id)?.let { remove(it) }
+            setReorderingAllowed(true)
+            add<ImageDetails>(binding.imageDetails.id, args = bundle)
+        }
     }
 
     private fun initFloatingActionButtons() {
@@ -209,5 +254,11 @@ class HomePage: AppCompatActivity() {
         binding.addFromPhoto.hide()
         binding.addImage.shrink()
         addImageButtonsVisible = false
+    }
+
+    private fun resetToolbar(value: Boolean) {
+        if (isPortrait && !value) {
+            binding.toolbarWidget.title = getString(R.string.app_name)
+        }
     }
 }

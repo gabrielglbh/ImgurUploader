@@ -16,11 +16,8 @@
                 android:id="@+id/image_to_upload"
                 android:layout_width="0dp"
                 android:layout_height="128dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_margin="8dp"
                 android:contentDescription="@string/imgur_image_to_upload"
-                android:maxHeight="128dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />

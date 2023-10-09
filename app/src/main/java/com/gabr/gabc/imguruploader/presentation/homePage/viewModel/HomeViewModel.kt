@@ -42,21 +42,35 @@ class HomeViewModel @Inject constructor(
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    private val _hasImage = MutableLiveData(false)
-    val hasImage: LiveData<Boolean>
-        get() = _hasImage
+    private val _hasImageToUpload = MutableLiveData(false)
+    val hasImageToUpload: LiveData<Boolean>
+        get() = _hasImageToUpload
 
-    fun updateForm(form: ImgFormState) {
+    private val _isDisplayingImageDetails = MutableLiveData(false)
+    val isDisplayingImageDetails: LiveData<Boolean>
+        get() = _isDisplayingImageDetails
+
+    fun setForm(form: ImgFormState) {
         _formState.value = form
     }
 
-    fun updateUserData(account: Account) {
+    fun setUserData(account: Account) {
         _userData.value = account
     }
 
-    fun updateHasImage(uri: Uri?) {
-        _hasImage.value = uri != null
-        updateForm(_formState.value.copy(link = uri))
+    fun setHasImageToUpload(uri: Uri?) {
+        _hasImageToUpload.value = uri != null
+        setForm(_formState.value.copy(link = uri))
+        if (_isDisplayingImageDetails.value == true) {
+            setIsDisplayingImageDetails(false)
+        }
+    }
+
+    fun setIsDisplayingImageDetails(value: Boolean) {
+        _isDisplayingImageDetails.value = value
+        if (_hasImageToUpload.value == true) {
+            setForm(ImgFormState())
+        }
     }
 
     fun loadImages(onError: (String) -> Unit) {
@@ -78,6 +92,28 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun deleteImage(deleteHash: String, onSuccess: () -> Unit, onError: (String) -> Unit) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            val userData = _userData.value
+            if (userData != null) {
+                val res = imageManagerRepository.deleteImage(
+                    userData.username,
+                    deleteHash
+                )
+                res.fold(
+                    ifLeft = { onError(it.error) },
+                    ifRight = {
+                        onSuccess()
+                        setIsDisplayingImageDetails(false)
+                        loadImages(onError)
+                    }
+                )
+            }
+            _isLoading.value = false
+        }
+    }
+
     fun uploadImage(onSuccess: () -> Unit, onError: (String) -> Unit) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -91,6 +127,7 @@ class HomeViewModel @Inject constructor(
                 ifLeft = { onError(it.error) },
                 ifRight = {
                     onSuccess()
+                    setHasImageToUpload(null)
                     loadImages(onError)
                 }
             )
@@ -120,7 +157,7 @@ class HomeViewModel @Inject constructor(
 
         val bitmap = BitmapFactory.decodeFile(outputFile.path)
 
-        val width = 400
+        val width = 1024
         val aspectRatio = bitmap.width.toFloat() / bitmap.height.toFloat()
         val resizedBitmap = Bitmap.createScaledBitmap(
             bitmap, width, (width / aspectRatio).roundToInt(), false
