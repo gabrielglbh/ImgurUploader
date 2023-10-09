@@ -1,4 +1,4 @@
-package com.gabr.gabc.imguruploader
+package com.gabr.gabc.imguruploader.presentation
 
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

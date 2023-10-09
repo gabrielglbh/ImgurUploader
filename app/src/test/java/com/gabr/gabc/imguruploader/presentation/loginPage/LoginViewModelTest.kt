@@ -2,8 +2,9 @@ package com.gabr.gabc.imguruploader.presentation.loginPage
 
 import android.content.SharedPreferences
 import android.content.SharedPreferences.Editor
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import arrow.core.Either
-import com.gabr.gabc.imguruploader.MainDispatcherRule
+import com.gabr.gabc.imguruploader.presentation.MainDispatcherRule
 import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
@@ -23,9 +24,11 @@ class LoginViewModelTest {
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
 
+    @get:Rule
+    val rule = InstantTaskExecutorRule()
+
     @Test
     fun getUserData_Successful() = runTest {
-        var result = false
         val mockSP = mockk<SharedPreferences> {
             every { getString(any(), any()) } returns ""
         }
@@ -36,10 +39,8 @@ class LoginViewModelTest {
             coEvery { getUserData(any()) } answers { Either.Right(mockk()) }
         }
         val viewModel = LoginViewModel(mockImageManager, mockSharedPreferences)
-        viewModel.getUserData {
-            result = true
-        }
-        Assert.assertTrue(result)
+        viewModel.getUserData {}
+        coVerify(exactly = 0) { mockImageManager.getSession(any(), any(), any()) }
     }
 
     @Test
@@ -103,9 +104,10 @@ class LoginViewModelTest {
         }
         val mockImageManager = mockk<ImageManagerRepository> {
             coEvery { getSession(any(), any(), any(), any()) } answers { Either.Right(mockOAuth) }
+            coEvery { getUserData(any()) } answers { Either.Right(mockk()) }
         }
         val viewModel = LoginViewModel(mockImageManager, mockSharedPreferences)
         viewModel.refreshAccessToken {}
-        verify(exactly = 2) { mockSharedPreferences.getPref() }
+        verify(exactly = 3) { mockSharedPreferences.getPref() }
     }
 }

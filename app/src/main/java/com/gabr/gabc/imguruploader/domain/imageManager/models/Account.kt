@@ -6,6 +6,6 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class Account(
-    val username: String,
-    val avatar: Uri,
+    val username: String = "",
+    val avatar: Uri? = Uri.EMPTY,
 ) : Parcelable

@@ -3,13 +3,12 @@ package com.gabr.gabc.imguruploader.infraestructure.imageManager
 import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
 import com.gabr.gabc.imguruploader.di.StringResourcesProvider
 import com.gabr.gabc.imguruploader.domain.http.HttpRepository
-import com.google.gson.JsonElement
-import com.google.gson.JsonParser
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.AccountDto
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurResponse
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody
 import org.junit.Assert
 import org.junit.Test
 import retrofit2.Response
@@ -22,16 +21,10 @@ class ImageManagerRepositoryImplGetUserDataTest {
 
     @Test
     fun getUserName_Successful() = runTest {
-        val mockJsonElement = mockk<JsonElement> {
-            every { asJsonObject } returns mockk()
+        val mockResponseBody = mockk<ImgurResponse<AccountDto>> {
+            every { data } returns AccountDto("", "")
         }
-        val mockJsonParser = mockk<JsonParser> {
-            every { parse(any<String>()) } returns mockJsonElement
-        }
-        val mockResponseBody = mockk<ResponseBody> {
-            every { string() } returns "{'data': {'test': 'test'}}"
-        }
-        val mockResponse = mockk<Response<ResponseBody>> {
+        val mockResponse = mockk<Response<ImgurResponse<AccountDto>>> {
             every { isSuccessful } returns true
             every { body() } returns mockResponseBody
         }
@@ -49,8 +42,9 @@ class ImageManagerRepositoryImplGetUserDataTest {
 
     @Test
     fun getUserName_Failure_404() = runTest {
-        val mockResponse = mockk<Response<ResponseBody>> {
+        val mockResponse = mockk<Response<ImgurResponse<AccountDto>>> {
             every { isSuccessful } returns false
+            every { code() } returns 404
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
             coEvery { getUserData(any()) } coAnswers { mockResponse }

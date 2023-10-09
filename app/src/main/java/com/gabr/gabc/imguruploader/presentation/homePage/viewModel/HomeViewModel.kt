@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(
     private val _formState = MutableStateFlow(ImgFormState())
     val formState: StateFlow<ImgFormState> = _formState.asStateFlow()
 
-    private val _userData = MutableLiveData<Account>()
+    private val _userData = MutableLiveData(Account())
     val userData: LiveData<Account>
         get() = _userData
 

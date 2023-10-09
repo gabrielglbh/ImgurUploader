@@ -6,6 +6,7 @@ import com.gabr.gabc.imguruploader.di.SharedPreferencesProvider
 import com.gabr.gabc.imguruploader.di.StringResourcesProvider
 import com.gabr.gabc.imguruploader.domain.http.HttpRepository
 import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurImageDto
+import com.gabr.gabc.imguruploader.infraestructure.imageManager.models.ImgurResponse
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -31,9 +32,12 @@ class ImageManagerRepositoryImplGetImagesTest {
         mockkStatic(Uri::class)
         every { Uri.parse(any()) } returns mockk()
         val dto = ImgurImageDto("", "", "")
-        val mockResponse = mockk<Response<List<ImgurImageDto>>> {
+        val mockImgurResponse = mockk<ImgurResponse<List<ImgurImageDto>>> {
+            every { data } returns listOf(dto)
+        }
+        val mockResponse = mockk<Response<ImgurResponse<List<ImgurImageDto>>>> {
             every { isSuccessful } returns true
-            every { body() } returns listOf(dto)
+            every { body() } returns mockImgurResponse
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
             coEvery { getImages(any()) } coAnswers { mockResponse }
@@ -49,7 +53,7 @@ class ImageManagerRepositoryImplGetImagesTest {
 
     @Test
     fun getImages_Failure_404() = runTest {
-        val mockResponse = mockk<Response<List<ImgurImageDto>>> {
+        val mockResponse = mockk<Response<ImgurResponse<List<ImgurImageDto>>>> {
             every { isSuccessful } returns false
         }
         val mockImageManagerCalls = mockk<ImageManagerCalls> {
