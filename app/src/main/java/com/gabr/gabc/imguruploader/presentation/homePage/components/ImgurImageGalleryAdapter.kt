@@ -28,7 +28,7 @@ class ImgurImageGalleryAdapter(private val images: List<ImgurImage>, private val
                     error(R.drawable.broken_image)
                     scale(Scale.FILL)
                 }
-                binding.imgurCard.setOnClickListener {
+                binding.imgurImage.setOnClickListener {
                     onClick(images[position])
                 }
             }

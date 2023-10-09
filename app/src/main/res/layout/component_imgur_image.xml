@@ -1,22 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<com.google.android.material.imageview.ShapeableImageView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/imgur_card"
-    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/imgur_image"
+    tools:background="@color/errorColor"
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="8dp"
-    android:backgroundTint="@color/secondaryText"
-    android:layout_margin="4dp">
-
-    <ImageView
-        android:id="@+id/imgur_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:contentDescription="@string/imgur_image"
-        android:adjustViewBounds="true"
-        android:scaleType="centerCrop"
-        android:layout_gravity="center"
-        tools:src="@drawable/camera" />
-
-</androidx.cardview.widget.CardView>
+    android:contentDescription="@string/imgur_image"
+    android:adjustViewBounds="true"
+    android:scaleType="centerCrop"
+    tools:src="@drawable/camera"
+    android:layout_margin="2dp"
+    app:shapeAppearanceOverlay="@style/corneredImageView" />

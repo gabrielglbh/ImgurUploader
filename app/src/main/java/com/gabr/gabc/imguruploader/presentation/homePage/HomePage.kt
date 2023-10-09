@@ -14,7 +14,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
-import androidx.recyclerview.widget.StaggeredGridLayoutManager
+import androidx.recyclerview.widget.GridLayoutManager
 import coil.load
 import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.databinding.HomePageLayoutBinding
@@ -100,7 +100,7 @@ class HomePage: AppCompatActivity() {
         }
 
         val spanCount = if (isLandscape) { 3 } else { 4 }
-        binding.imgurImages.layoutManager = StaggeredGridLayoutManager(spanCount, 1)
+        binding.imgurImages.layoutManager = GridLayoutManager(this, spanCount)
         setAdapterForRecyclerView(viewModel.images.value ?: listOf())
 
         initLiveDataObservables(viewModel)
