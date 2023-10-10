@@ -6,11 +6,15 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.gabr.gabc.imguruploader.databinding.LoginPageLayoutBinding
 import com.gabr.gabc.imguruploader.presentation.homePage.HomePage
 import com.gabr.gabc.imguruploader.presentation.loginPage.viewModel.LoginViewModel
 import com.gabr.gabc.imguruploader.presentation.shared.Constants
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 @AndroidEntryPoint
@@ -45,6 +49,15 @@ class LoginPage: AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val viewModel: LoginViewModel by viewModels()
+
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isLoading.collect {
+                    binding.loadingLayout.loading.visibility = if (it) { View.VISIBLE } else { View.GONE }
+                }
+            }
+        }
+
         val data = intent.data
         if (data != null && data.scheme == Constants.REDIRECT_URL_SCHEME) {
             val uriFragment = data.fragment
@@ -74,10 +87,6 @@ class LoginPage: AppCompatActivity() {
                 val i = Intent(Intent.ACTION_VIEW, Uri.parse(url.toUrl().toString()))
                 startActivity(i)
             }
-        }
-
-        viewModel.isLoading.observe(this) {
-            binding.loadingLayout.loading.visibility = if (it) { View.VISIBLE } else { View.GONE }
         }
     }
 }

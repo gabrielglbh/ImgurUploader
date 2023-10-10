@@ -14,6 +14,9 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.add
 import androidx.fragment.app.commit
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
 import coil.load
 import com.gabr.gabc.imguruploader.R
@@ -28,6 +31,7 @@ import com.gabr.gabc.imguruploader.presentation.loginPage.LoginPage
 import com.gabr.gabc.imguruploader.presentation.shared.PermissionsRequester
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class HomePage: AppCompatActivity() {
@@ -92,7 +96,7 @@ class HomePage: AppCompatActivity() {
 
         val spanCount = if (isPortrait) { 3 } else { 4 }
         binding.imgurImages.layoutManager = GridLayoutManager(this, spanCount)
-        setAdapterForRecyclerView(viewModel.images.value ?: listOf())
+        setAdapterForRecyclerView(viewModel.images.value)
 
         initLiveDataObservables(viewModel)
         initFloatingActionButtons()
@@ -110,10 +114,10 @@ class HomePage: AppCompatActivity() {
                 commit()
             }
 
-            if (viewModel.hasImageToUpload.value == true) {
+            if (viewModel.hasImageToUpload.value) {
                 viewModel.setHasImageToUpload(null)
             }
-            if (viewModel.isDisplayingImageDetails.value == true) {
+            if (viewModel.isDisplayingImageDetails.value) {
                 viewModel.setIsDisplayingImageDetails(false)
             }
         }
@@ -123,10 +127,10 @@ class HomePage: AppCompatActivity() {
         val viewModel: HomeViewModel by viewModels()
 
         if (isPortrait) {
-            if (viewModel.hasImageToUpload.value == true) {
+            if (viewModel.hasImageToUpload.value) {
                 binding.toolbarWidget.title = getString(R.string.upload_image_title)
             }
-            if (viewModel.isDisplayingImageDetails.value == true) {
+            if (viewModel.isDisplayingImageDetails.value) {
                 binding.toolbarWidget.title = getString(R.string.details)
             }
         } else {
@@ -153,24 +157,44 @@ class HomePage: AppCompatActivity() {
     }
 
     private fun initLiveDataObservables(viewModel: HomeViewModel) {
-        viewModel.isLoading.observe(this) {
-            binding.loadingLayout.loading.visibility = if (it) { View.VISIBLE } else { View.GONE }
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isLoading.collect {
+                    binding.loadingLayout.loading.visibility = if (it) { View.VISIBLE } else { View.GONE }
+                }
+            }
         }
-        viewModel.images.observe(this) {
-            setAdapterForRecyclerView(it)
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.images.collect {
+                    setAdapterForRecyclerView(it)
+                }
+            }
         }
-        viewModel.hasImageToUpload.observe(this) {
-            binding.noPhotoSelected?.visibility = if (it) { View.GONE } else { View.VISIBLE }
-            resetToolbar(it)
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.hasImageToUpload.collect {
+                    binding.noPhotoSelected?.visibility = if (it) { View.GONE } else { View.VISIBLE }
+                    resetToolbar(it)
+                }
+            }
         }
-        viewModel.isDisplayingImageDetails.observe(this) {
-            val hasImageToUpdate = viewModel.hasImageToUpload.value
-            binding.noPhotoSelected?.visibility = if (!it && hasImageToUpdate == false) { View.VISIBLE } else { View.GONE }
-            resetToolbar(it)
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.isDisplayingImageDetails.collect {
+                    val hasImageToUpdate = viewModel.hasImageToUpload.value
+                    binding.noPhotoSelected?.visibility = if (!it && !hasImageToUpdate) { View.VISIBLE } else { View.GONE }
+                    resetToolbar(it)
+                }
+            }
         }
-        viewModel.userData.observe(this) {
-            binding.userAvatar.load(it.avatar) {
-                error(R.drawable.broken_image)
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.userData.collect {
+                    binding.userAvatar.load(it.avatar) {
+                        error(R.drawable.broken_image)
+                    }
+                }
             }
         }
     }

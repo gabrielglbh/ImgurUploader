@@ -3,8 +3,6 @@ package com.gabr.gabc.imguruploader.presentation.homePage.viewModel
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.gabr.gabc.imguruploader.di.ContentResolverProvider
@@ -30,25 +28,20 @@ class HomeViewModel @Inject constructor(
     private val _formState = MutableStateFlow(ImgFormState())
     val formState: StateFlow<ImgFormState> = _formState.asStateFlow()
 
-    private val _userData = MutableLiveData(Account())
-    val userData: LiveData<Account>
-        get() = _userData
+    private val _userData = MutableStateFlow(Account())
+    val userData: StateFlow<Account> = _userData.asStateFlow()
 
-    private val _images = MutableLiveData<MutableList<ImgurImage>>()
-    val images: LiveData<MutableList<ImgurImage>>
-        get() = _images
+    private val _images = MutableStateFlow(mutableListOf<ImgurImage>())
+    val images: StateFlow<MutableList<ImgurImage>> = _images.asStateFlow()
 
-    private val _isLoading = MutableLiveData(false)
-    val isLoading: LiveData<Boolean>
-        get() = _isLoading
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    private val _hasImageToUpload = MutableLiveData(false)
-    val hasImageToUpload: LiveData<Boolean>
-        get() = _hasImageToUpload
+    private val _hasImageToUpload = MutableStateFlow(false)
+    val hasImageToUpload: StateFlow<Boolean> = _hasImageToUpload.asStateFlow()
 
-    private val _isDisplayingImageDetails = MutableLiveData(false)
-    val isDisplayingImageDetails: LiveData<Boolean>
-        get() = _isDisplayingImageDetails
+    private val _isDisplayingImageDetails = MutableStateFlow(false)
+    val isDisplayingImageDetails: StateFlow<Boolean> = _isDisplayingImageDetails.asStateFlow()
 
     fun setForm(form: ImgFormState) {
         _formState.value = form
@@ -61,14 +54,14 @@ class HomeViewModel @Inject constructor(
     fun setHasImageToUpload(uri: Uri?) {
         _hasImageToUpload.value = uri != null
         setForm(_formState.value.copy(link = uri))
-        if (_isDisplayingImageDetails.value == true) {
+        if (_isDisplayingImageDetails.value) {
             setIsDisplayingImageDetails(false)
         }
     }
 
     fun setIsDisplayingImageDetails(value: Boolean) {
         _isDisplayingImageDetails.value = value
-        if (_hasImageToUpload.value == true) {
+        if (_hasImageToUpload.value) {
             setForm(ImgFormState())
         }
     }
@@ -96,20 +89,18 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             _isLoading.value = true
             val userData = _userData.value
-            if (userData != null) {
-                val res = imageManagerRepository.deleteImage(
-                    userData.username,
-                    deleteHash
-                )
-                res.fold(
-                    ifLeft = { onError(it.error) },
-                    ifRight = {
-                        onSuccess()
-                        setIsDisplayingImageDetails(false)
-                        loadImages(onError)
-                    }
-                )
-            }
+            val res = imageManagerRepository.deleteImage(
+                userData.username,
+                deleteHash
+            )
+            res.fold(
+                ifLeft = { onError(it.error) },
+                ifRight = {
+                    onSuccess()
+                    setIsDisplayingImageDetails(false)
+                    loadImages(onError)
+                }
+            )
             _isLoading.value = false
         }
     }
