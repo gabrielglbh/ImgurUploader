@@ -1,25 +1,27 @@
-package com.gabr.gabc.imguruploader.loginPage
+package com.gabr.gabc.imguruploader.homePage
 
-import android.content.Intent
 import android.net.Uri
+import android.widget.ImageView
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
 import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.hasDescendant
+import androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withText
-import androidx.test.espresso.intent.Intents.intended
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
-import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
+import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiSelector
 import arrow.core.Either
+import com.gabr.gabc.imguruploader.R
 import com.gabr.gabc.imguruploader.di.AppModule
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerFailure
 import com.gabr.gabc.imguruploader.domain.imageManager.ImageManagerRepository
 import com.gabr.gabc.imguruploader.domain.imageManager.models.Account
 import com.gabr.gabc.imguruploader.domain.imageManager.models.ImgurImage
 import com.gabr.gabc.imguruploader.domain.imageManager.models.OAuth
-import com.gabr.gabc.imguruploader.presentation.loginPage.LoginPage
-import com.gabr.gabc.imguruploader.presentation.shared.Constants
+import com.gabr.gabc.imguruploader.presentation.homePage.HomePage
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.android.components.ViewModelComponent
@@ -28,16 +30,16 @@ import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import dagger.hilt.android.testing.UninstallModules
 import dagger.hilt.testing.TestInstallIn
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import org.hamcrest.core.AllOf.allOf
+import org.hamcrest.CoreMatchers.allOf
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
 
+
 @UninstallModules(AppModule::class)
 @HiltAndroidTest
-class LoginPageTest {
+class HomePageTest {
     @Module
     @TestInstallIn(
         components = [ViewModelComponent::class],
@@ -60,7 +62,7 @@ class LoginPageTest {
         }
 
         override suspend fun getUserData(userName: String): Either<ImageManagerFailure, Account> {
-            return Either.Left(ImageManagerFailure.UserRetrievalFailed(""))
+            return Either.Right(Account("", Uri.EMPTY))
         }
 
         override suspend fun uploadImage(
@@ -88,27 +90,33 @@ class LoginPageTest {
 
     @JvmField
     @Rule(order = 1)
-    val scenarioRule = ActivityScenarioRule(LoginPage::class.java)
+    val scenarioRule = ActivityScenarioRule(HomePage::class.java)
+
+    private var device: UiDevice? = null
 
     @Before
     fun setUp() {
         hiltRule.inject()
+        device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
     }
 
     @Test
-    fun loginButton_SendsCorrectUri() {
-        val buttonText = "Iniciar sesión"
-        val url = Constants.AUTHORIZE_URL.toHttpUrlOrNull()
-            ?.newBuilder()
-            ?.addQueryParameter("client_id", Constants.CLIENT_ID)
-            ?.addQueryParameter("response_type", "token")
-            ?.addQueryParameter("redirect_uri", Constants.REDIRECT_URL)
-            ?.build()
-        onView(withText(buttonText)).check(matches(isDisplayed()))
-        onView(withText(buttonText)).perform(click())
-        intended(allOf(
-            hasAction(Intent.ACTION_VIEW),
-            hasData(Uri.parse(url?.toUrl().toString()))
-        ))
+    fun homePage_AssertImages() {
+        onView(withId(R.id.imgur_images)).check(matches(isDisplayed()))
+        onView(withId(R.id.imgur_images)).check(matches(hasDescendant(allOf(
+            isAssignableFrom(ImageView::class.java),
+            isDisplayed()
+        ))))
+    }
+
+    @Test
+    fun homePage_AddPhotoToList() {
+        onView(withId(R.id.add_image)).perform(click())
+        onView(withId(R.id.add_from_gallery)).perform(click())
+        Thread.sleep(2000)
+        val imageSelector = UiSelector().resourceId("com.android.gallery3d:id/gl_root_view")
+        imageSelector.childSelector(UiSelector().index(0))
+        Thread.sleep(2000)
+        onView(withId(R.id.image_to_upload)).check(matches(isDisplayed()))
     }
 }
