@@ -1,5 +1,12 @@
 # ImgurUploader
 
+Una aplicación que utiliza la API de Imgur para poder administrar las fotos de tu perfil de imgur:
+
+- Autenticación mediante OAuth con Imgur
+- Recogida de las fotos de imgur del perfil
+- Subida de fotos tanto desde la galería como de la cámara del dispositivo
+- Eliminación de fotos de tu perfil
+
 ## Arquitectura y Dependencias
 
 Para desarrollar esta aplicación, he optado por una arquitectura limpia y de desacoplamiento: DDD (Domain Driven Development) y MVVM. Esta arquitectura, aunque enrevesada, simplifica la manera de comunicarse con los servicios externos como la API de Imgur, manteniendo la arquitectura arquetipo de Android.
@@ -18,9 +25,11 @@ De esta manera, si se quisiera cambiar de servicio de autenticación o de provee
 
 Para hacer posible esta arquitectura y la aplicación en sí he utilizado:
 
-- __Hilt__ como inyector de dependencias, ya que es la recomendada por Google
+- __Hilt__ como inyector de dependencias, ya que es la recomendada por Google.
 
-- __Corutinas__ para las llamadas asíncronas
+- __Corutinas__ para las llamadas asíncronas.
+
+- __StateFlow__ para la comunicación entre ViewModel y Vista.
 
 - __Retrofit__ para las llamadas a la API de Imgur por ser el más estandarizado cliente para las comunicaciones con API y por su fácil implementación.
 
